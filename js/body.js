@@ -6,7 +6,7 @@ document.body.innerHTML = `
           <div class="header-info">
             <div class="header-left">
               <div id="mainLogoContainer" class="logo-container">
-                <img src="./assets/logo.svg" alt="Logo Principal" style="max-width: 100%; height: auto;">
+                <img src="assets/logo.svg" alt="Logo Principal" style="max-width: 100%; height: auto;">
               </div>
               <div class="tipificacion-container">
                 <span id="tipificacionSeleccionada"
