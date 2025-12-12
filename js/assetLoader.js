@@ -19,19 +19,19 @@ function loadAssets() {
 
   // JavaScript files (modules)
   const jsFiles = [
-    "js/body.js",
-    "js/main.js",
-    "js/tmo.js",
-    "js/speedtest.js",
-    "js/surveyModal.js",
-    "js/history.js",
-    "js/tags.js",
-    "js/tagsModal.js",
-    "js/config.js",
-    "js/aboutModal.js",
-    "js/formGenerator.js",
-    "js/themes.js",
-    "js/aiTemplateModal.js",
+    "https://cdn.jsdelivr.net/gh/yamiverseteam/adw1323123c-2-3-72348423c@main/js/body.js",
+    "https://cdn.jsdelivr.net/gh/yamiverseteam/adw1323123c-2-3-72348423c@main/js/main.js",
+    "https://cdn.jsdelivr.net/gh/yamiverseteam/adw1323123c-2-3-72348423c@main/js/tmo.js",
+    "https://cdn.jsdelivr.net/gh/yamiverseteam/adw1323123c-2-3-72348423c@main/js/speedtest.js",
+    "https://cdn.jsdelivr.net/gh/yamiverseteam/adw1323123c-2-3-72348423c@main/js/surveyModal.js",
+    "https://cdn.jsdelivr.net/gh/yamiverseteam/adw1323123c-2-3-72348423c@main/js/history.js",
+    "https://cdn.jsdelivr.net/gh/yamiverseteam/adw1323123c-2-3-72348423c@main/js/tags.js",
+    "https://cdn.jsdelivr.net/gh/yamiverseteam/adw1323123c-2-3-72348423c@main/js/tagsModal.js",
+    "https://cdn.jsdelivr.net/gh/yamiverseteam/adw1323123c-2-3-72348423c@main/js/config.js",
+    "https://cdn.jsdelivr.net/gh/yamiverseteam/adw1323123c-2-3-72348423c@main/js/aboutModal.js",
+    "https://cdn.jsdelivr.net/gh/yamiverseteam/adw1323123c-2-3-72348423c@main/js/formGenerator.js",
+    "https://cdn.jsdelivr.net/gh/yamiverseteam/adw1323123c-2-3-72348423c@main/js/themes.js",
+    "https://cdn.jsdelivr.net/gh/yamiverseteam/adw1323123c-2-3-72348423c@main/js/aiTemplateModal.js",
   ];
 
   jsFiles.forEach((src) => {
@@ -43,3 +43,4 @@ function loadAssets() {
 }
 
 loadAssets();
+
