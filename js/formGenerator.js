@@ -9,11 +9,9 @@ export function renderFormFields(tipoTipificacion) {
     return;
   }
 
-  // Clear existing content only if the typification has changed
-  if (tipoTipificacion !== lastSelectedTypification) {
-    formContenido.innerHTML = "";
-    lastSelectedTypification = tipoTipificacion; // Update the last selected typification
-  }
+  // Always clear existing content before rendering new fields
+  formContenido.innerHTML = "";
+  lastSelectedTypification = tipoTipificacion; // Update the last selected typification
 
   // Define common fields
   const commonFields = [

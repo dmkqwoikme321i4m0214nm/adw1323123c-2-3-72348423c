@@ -19,19 +19,19 @@ function loadAssets() {
 
   // JavaScript files (modules)
   const jsFiles = [
-    "./js/body.js",
-    "./js/main.js",
-    "./js/tmo.js",
-    "./js/speedtest.js",
-    "./js/surveyModal.js",
-    "./js/history.js",
-    "./js/tags.js",
-    "./js/tagsModal.js",
-    "./js/config.js",
-    "./js/aboutModal.js",
-    "./js/formGenerator.js",
-    "./js/themes.js",
-    "./js/aiTemplateModal.js",
+    "js/body.js",
+    "js/main.js",
+    "js/tmo.js",
+    "js/speedtest.js",
+    "js/surveyModal.js",
+    "js/history.js",
+    "js/tags.js",
+    "js/tagsModal.js",
+    "js/config.js",
+    "js/aboutModal.js",
+    "js/formGenerator.js",
+    "js/themes.js",
+    "js/aiTemplateModal.js",
   ];
 
   jsFiles.forEach((src) => {
@@ -43,5 +43,3 @@ function loadAssets() {
 }
 
 loadAssets();
-
-

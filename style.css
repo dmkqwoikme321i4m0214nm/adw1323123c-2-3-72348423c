@@ -798,9 +798,13 @@ input:checked+.slider:before {
 }
 
 .shortcuts-table .shortcut-actions {
-  text-align: right;
-  width: 100px;
-  /* Fixed width for actions column */
+  display: flex;
+  gap: 10px;
+}
+
+text-align: right;
+width: 100px;
+/* Fixed width for actions column */
 }
 
 .shortcuts-table .shortcut-actions button {

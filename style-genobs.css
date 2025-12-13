@@ -435,12 +435,247 @@
     padding: 18px;
   }
 
-  .genobs-feature .genobs-tab-content.active {
-    gap: 18px;
-  }
-
   .genobs-feature .questions-column,
   .genobs-feature .support-column {
-    min-width: 280px;
+    flex: 1;
+    /* Distribute space equally */
+    min-width: 300px;
+    /* Minimum width for columns before wrapping */
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    /* Space between form groups */
   }
-}
+
+  /* Styling for the soporteGenerado textarea */
+  .genobs-feature #soporteGenerado {
+    resize: vertical;
+    /* Allow vertical resizing */
+    min-height: 150px;
+    /* Make it larger by default */
+  }
+
+  .genobs-feature .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .genobs-feature .form-group label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: var(--text-primary);
+  }
+
+  .genobs-feature .form-group input,
+  .genobs-feature .form-group select,
+  .genobs-feature .form-group textarea {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+    /* Ensure padding and border are included in the element's total width and height */
+    background-color: var(--input-bg);
+    /* Use theme variable */
+    color: var(--input-text);
+    /* Use theme variable */
+    border-color: var(--input-border);
+    /* Use theme variable */
+  }
+
+  .genobs-feature .form-group input:focus,
+  .genobs-feature .form-group select:focus,
+  .genobs-feature .form-group textarea:focus {
+    outline: none;
+    border-color: var(--input-focus-border);
+    /* Use theme variable */
+    box-shadow: 0 0 0 3px var(--input-focus-shadow);
+    /* Use theme variable */
+    background-color: var(--input-focus-bg);
+    /* Use theme variable */
+  }
+
+  .genobs-feature .modal-form-content button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    background-color: var(--accent-primary);
+    color: var(--button-text-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .modal-form-content button:hover {
+    background-color: var(--accent-hover);
+  }
+
+  .modal-form-content button.secondary {
+    background-color: #6c757d;
+  }
+
+  .modal-form-content button.secondary:hover {
+    background-color: #5a6268;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+
+    /* Header adjustments */
+    .genobs-feature .genobs-header {
+      padding: 12px 15px;
+      flex-wrap: wrap;
+    }
+
+    .genobs-feature .genobs-header h2 {
+      font-size: 1.2em;
+    }
+
+    .genobs-feature .genobs-header .close-btn {
+      width: 40px;
+      height: 40px;
+      font-size: 24px;
+    }
+
+    .genobs-feature .genobs-header .primary-button {
+      padding: 8px 15px;
+      font-size: 14px;
+    }
+
+    /* Stack sidebar and content vertically on mobile */
+    .genobs-feature .genobs-body-content {
+      flex-direction: column;
+    }
+
+    /* Tabs become horizontal on mobile */
+    .genobs-feature .genobs-tabs {
+      width: 100%;
+      flex-direction: row;
+      border-right: none;
+      border-bottom: 1px solid var(--bg-tertiary);
+      padding: 0;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .genobs-feature .genobs-tab-button {
+      padding: 12px 15px;
+      margin-bottom: 0;
+      margin-right: 5px;
+      white-space: nowrap;
+      font-size: 0.9rem;
+    }
+
+    .genobs-feature .genobs-tab-button.active {
+      padding: 11px 14px;
+      border-bottom: 2px solid var(--accent-primary);
+      border-left: none;
+      border-right: none;
+      border-top: none;
+    }
+
+    /* Content area adjustments */
+    .genobs-feature .modal-form-content {
+      padding: 15px;
+    }
+
+    .genobs-feature .genobs-tab-content.active {
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .genobs-feature .questions-column,
+    .genobs-feature .support-column {
+      min-width: 100%;
+    }
+
+    /* Form elements */
+    .genobs-feature .form-group label {
+      font-size: 0.95rem;
+    }
+
+    .genobs-feature .form-group input,
+    .genobs-feature .form-group select,
+    .genobs-feature .form-group textarea {
+      padding: 10px;
+      font-size: 0.95rem;
+    }
+
+    .genobs-feature #soporteGenerado {
+      min-height: 120px;
+    }
+
+    .genobs-feature .modal-form-content button {
+      padding: 10px 18px;
+      font-size: 15px;
+      width: 100%;
+    }
+  }
+
+  /* Tablet adjustments */
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .genobs-feature .genobs-tabs {
+      width: 180px;
+    }
+
+    .genobs-feature .genobs-tab-button {
+      padding: 10px 15px;
+      font-size: 0.95rem;
+    }
+
+    .genobs-feature .modal-form-content {
+      padding: 18px;
+    }
+
+    .genobs-feature .genobs-tab-content.active {
+      gap: 18px;
+    }
+
+    .genobs-feature .questions-column,
+    .genobs-feature .support-column {
+      min-width: 280px;
+    }
+  }
+
+  /* Survey Badges */
+  .genobs-feature .survey-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 6px;
+    /* Small rounded corners */
+    margin-left: 8px;
+    vertical-align: middle;
+    border: 1px solid currentColor;
+    opacity: 0.9;
+    letter-spacing: 0.3px;
+  }
+
+  .genobs-feature .survey-badge .material-icons {
+    font-size: 13px;
+  }
+
+  .genobs-feature .badge-sondeo {
+    color: var(--accent-primary);
+    background-color: rgba(161, 159, 14, 0.1);
+    /* Light accent background */
+  }
+
+  .genobs-feature .badge-persiste {
+    color: #3b82f6;
+    /* Blue-ish color for Persiste */
+    background-color: rgba(59, 130, 246, 0.1);
+  }
+
+  .genobs-feature .badge-info {
+    color: var(--text-secondary);
+    background-color: rgba(128, 128, 128, 0.1);
+    border-color: var(--text-secondary);
+  }

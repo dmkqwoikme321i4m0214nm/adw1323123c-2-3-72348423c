@@ -269,8 +269,8 @@ document.body.innerHTML = `
           &times;
         </button>
         <h2>Selecciona el Tipo de Tipificación</h2>
-        <button onclick="window.guardarTipificacion('Movil')">Movil</button>
-        <button onclick="window.guardarTipificacion('SAC')">SAC</button>
+        <button onclick="window.guardarTipificacion('Movil')" style="display: none;">Movil</button>
+        <button onclick="window.guardarTipificacion('SAC')" style="display: none;">SAC</button>
         <button onclick="window.guardarTipificacion('Transferencia (Soporte)')">
           Transferencia (Soporte)
         </button>
@@ -661,7 +661,7 @@ document.body.innerHTML = `
             <div class="questions-column">
               <div class="form-group">
                 <label for="suministroElectrico"
-                  >¿Tiene suministro eléctrico? <span style="color: var(--danger-color);">*</span></label
+                  >¿Tiene suministro eléctrico? <span class="survey-badge badge-sondeo"><i class="material-icons">poll</i> Sondeo</span> <span style="color: var(--danger-color);">*</span></label
                 >
                 <select id="suministroElectrico">
                   <option value="" disabled selected>Seleccione</option>
@@ -673,7 +673,7 @@ document.body.innerHTML = `
 
               <div class="form-group">
                 <label for="generadorElectrico"
-                  >¿Tiene generador eléctrico? <span style="color: var(--danger-color);">*</span></label
+                  >¿Tiene generador eléctrico? <span class="survey-badge badge-sondeo"><i class="material-icons">poll</i> Sondeo</span> <span style="color: var(--danger-color);">*</span></label
                 >
                 <select id="generadorElectrico">
                   <option value="" disabled selected>Seleccione</option>
@@ -684,7 +684,7 @@ document.body.innerHTML = `
               </div>
 
               <div class="form-group">
-                <label for="tiempoFalla">¿Desde cuándo presenta la falla? <span style="color: var(--danger-color);">*</span></label>
+                <label for="tiempoFalla">¿Desde cuándo presenta la falla? <span class="survey-badge badge-sondeo"><i class="material-icons">poll</i> Sondeo</span> <span class="survey-badge badge-persiste"><i class="material-icons">history</i> Persiste</span> <span style="color: var(--danger-color);">*</span></label>
                 <input type="datetime-local" id="tiempoFalla" />
               </div>
 
@@ -716,6 +716,23 @@ document.body.innerHTML = `
                   <option value="2 MUNDOS (INTERNET + MUNDO GO)">2 MUNDOS (INTERNET + MUNDO GO)</option>
                   <option value="3 MUNDOS (INTERNET + MUNDO GO + TELEFONIA)">3 MUNDOS (INTERNET + MUNDO GO + TELEFONIA)</option>
                 </select>
+              </div>
+
+              <div class="form-group">
+                <label for="motivoComunicacion">¿Por qué se comunica el cliente? <span class="survey-badge badge-sondeo"><i class="material-icons">poll</i> Sondeo</span> <span style="color: var(--danger-color);">*</span></label>
+                <select id="motivoComunicacion" onchange="window.toggleMotivoComunicacionOtros()">
+                  <option value="" disabled selected>Seleccione</option>
+                  <option value="Por servicio de internet">Por servicio de internet</option>
+                  <option value="Por servicio de tv">Por servicio de tv</option>
+                  <option value="Por servicio de fono">Por servicio de fono</option>
+                  <option value="Incumplimiento visita">Incumplimiento visita</option>
+                  <option value="Otros:">Otros:</option>
+                </select>
+              </div>
+
+              <div class="form-group" id="motivoComunicacionOtrosContainer" style="display: none;">
+                <label for="motivoComunicacionOtros">Especifique otro motivo: <span style="color: var(--danger-color);">*</span></label>
+                <input type="text" id="motivoComunicacionOtros" placeholder="Especifique el motivo" />
               </div>
 
               <div id="extraPreguntas">
@@ -791,7 +808,7 @@ document.body.innerHTML = `
               <div class="form-group">
                 <label for="instalacionReparacion"
                   >¿El cliente se está comunicando por inconvenientes que hubo al
-                  momento de la instalación o reparación? <span style="color: var(--danger-color);">*</span></label
+                  momento de la instalación o reparación? <span class="survey-badge badge-sondeo"><i class="material-icons">poll</i> Sondeo</span> <span style="color: var(--danger-color);">*</span></label
                 >
                 <select id="instalacionReparacion">
                   <option value="" disabled selected>Seleccione</option>
@@ -837,7 +854,7 @@ document.body.innerHTML = `
               </div>
 
               <div class="form-group">
-                <label for="estadoLuces">¿Tiene luces? ¿En qué estado? <span style="color: var(--danger-color);">*</span></label>
+                <label for="estadoLuces">¿Tiene luces? ¿En qué estado? <span class="survey-badge badge-sondeo"><i class="material-icons">poll</i> Sondeo</span> <span class="survey-badge badge-persiste"><i class="material-icons">history</i> Persiste</span> <span style="color: var(--danger-color);">*</span></label>
                 <select id="estadoLuces">
                   <option value="" disabled selected>Seleccione</option>
                   <option value="Luces Verdes (sin intermitencia)">
@@ -899,7 +916,7 @@ document.body.innerHTML = `
               </div>
 
               <div class="form-group">
-                <label for="perdidaMonitoreo">¿Tiene perdida de monitoreo? <span style="color: var(--danger-color);">*</span></label>
+                <label for="perdidaMonitoreo">¿Tiene perdida de monitoreo? <span class="survey-badge badge-persiste"><i class="material-icons">history</i> Persiste</span> <span style="color: var(--danger-color);">*</span></label>
                 <select id="perdidaMonitoreo">
                   <option value="" disabled selected>Seleccione</option>
                   <option value="SI">SI</option>
@@ -908,7 +925,7 @@ document.body.innerHTML = `
               </div>
 
               <div class="form-group">
-                <label for="clienteConectadoPor">El Cliente se Encuentra Conectado Por <span style="color: var(--danger-color);">*</span></label>
+                <label for="clienteConectadoPor">El Cliente se Encuentra Conectado Por <span class="survey-badge badge-persiste"><i class="material-icons">history</i> Persiste</span> <span style="color: var(--danger-color);">*</span></label>
                 <select id="clienteConectadoPor">
                   <option value="" disabled selected>Seleccione</option>
                   <option value="WIFI">WIFI</option>
@@ -918,7 +935,7 @@ document.body.innerHTML = `
               </div>
 
               <div class="form-group">
-                <label for="estadoOntPersiste">¿Qué Estado Presenta la ONT? <span style="color: var(--danger-color);">*</span></label>
+                <label for="estadoOntPersiste">¿Qué Estado Presenta la ONT? <span class="survey-badge badge-persiste"><i class="material-icons">history</i> Persiste</span> <span style="color: var(--danger-color);">*</span></label>
                 <select id="estadoOntPersiste">
                   <option value="" disabled selected>Seleccione</option>
                   <option value="CONECTADO">CONECTADO</option>
@@ -931,7 +948,7 @@ document.body.innerHTML = `
               </div>
 
               <div class="form-group">
-                <label for="redesUnificadas">¿Redes Unificadas? <span style="color: var(--danger-color);">*</span></label>
+                <label for="redesUnificadas">¿Redes Unificadas? <span class="survey-badge badge-persiste"><i class="material-icons">history</i> Persiste</span> <span style="color: var(--danger-color);">*</span></label>
                 <select id="redesUnificadas" onchange="window.toggleRedesUnificadasOtros()">
                   <option value="" disabled selected>Seleccione</option>
                   <option value="SI">SI</option>
@@ -1180,6 +1197,19 @@ document.body.innerHTML = `
           <button class="secondary" onclick="window.cerrarModal('tmoConfirmationModal')">
             Cancelar
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Confirmar Cambio de Tipificación -->
+    <div id="modalConfirmarCambioTipificacion" class="modal">
+      <div class="modal-content small-modal">
+        <h2>Conservar Información</h2>
+        <p>¿Desea conservar la información actual para la nueva tipificación?</p>
+        <div class="modal-actions">
+          <button id="btnConservarInfo" class="primary">Sí, conservar</button>
+          <button id="btnLimpiarInfo" class="secondary">No, limpiar</button>
+          <button id="btnCancelarCambio" class="secondary" style="background-color: var(--bg-tertiary); color: var(--text-primary);">Cancelar</button>
         </div>
       </div>
     </div>

@@ -186,12 +186,100 @@ export const abrirModalTipificacion = () => {
 
 window.abrirModalTipificacion = abrirModalTipificacion;
 
-window.guardarTipificacion = (tipo) => {
+// Helper function for custom confirmation modal
+const confirmarCambioTipificacion = () => {
+  return new Promise((resolve) => {
+    const modal = document.getElementById("modalConfirmarCambioTipificacion");
+    const btnConservar = document.getElementById("btnConservarInfo");
+    const btnLimpiar = document.getElementById("btnLimpiarInfo");
+    const btnCancelar = document.getElementById("btnCancelarCambio");
+
+    if (!modal || !btnConservar || !btnLimpiar || !btnCancelar) {
+      // Fallback if modal elements are missing
+      resolve(confirm("¿Desea conservar la información actual para la nueva tipificación?"));
+      return;
+    }
+
+    const cleanup = () => {
+      btnConservar.onclick = null;
+      btnLimpiar.onclick = null;
+      btnCancelar.onclick = null;
+      window.cerrarModal("modalConfirmarCambioTipificacion");
+    };
+
+    btnConservar.onclick = () => {
+      cleanup();
+      resolve(true);
+    };
+
+    btnLimpiar.onclick = () => {
+      cleanup();
+      resolve(false);
+    };
+
+    btnCancelar.onclick = () => {
+      cleanup();
+      resolve(null); // Null indicates cancellation
+    };
+
+    window.abrirModal("modalConfirmarCambioTipificacion");
+  });
+};
+
+window.guardarTipificacion = async (tipo) => {
   const savedTypification = localStorage.getItem("selectedTypification");
 
-  // Only clear form fields if the typification has changed
-  if (tipo !== savedTypification) {
-    window.limpiarFormulario();
+  // Check if switching between "Transferencia (Soporte)" and "Soporte" (in either direction)
+  const isTransferenciaToSoporte =
+    savedTypification === "Transferencia (Soporte)" && tipo === "Soporte";
+  const isSoporteToTransferencia =
+    savedTypification === "Soporte" && tipo === "Transferencia (Soporte)";
+
+  let preserveData = false;
+
+  if (isTransferenciaToSoporte || isSoporteToTransferencia) {
+    // Check if there is any data to preserve
+    let hasData = false;
+    const formElements = document.getElementById("datosForm").elements;
+    for (let i = 0; i < formElements.length; i++) {
+      const element = formElements[i];
+      if (
+        element.id &&
+        element.type !== "button" &&
+        element.type !== "submit" &&
+        element.value.trim() !== ""
+      ) {
+        hasData = true;
+        break;
+      }
+    }
+
+    if (hasData) {
+      const userChoice = await confirmarCambioTipificacion();
+
+      if (userChoice === null) {
+        // User cancelled, do nothing (stay on current typification)
+        return;
+      }
+      preserveData = userChoice;
+    }
+  }
+
+  // Capture data if preserving
+  let capturedData = {};
+  if (preserveData) {
+    const formElements = document.getElementById("datosForm").elements;
+    for (let i = 0; i < formElements.length; i++) {
+      const element = formElements[i];
+      if (element.id && element.type !== "button" && element.type !== "submit") {
+        capturedData[element.id] = element.value;
+      }
+    }
+  }
+
+  // Only clear form fields if the typification has changed AND we are NOT preserving data
+  if (tipo !== savedTypification && !preserveData) {
+    window.limpiarFormulario(false);
   }
 
   localStorage.setItem("selectedTypification", tipo); // Save to local storage
@@ -213,9 +301,30 @@ window.guardarTipificacion = (tipo) => {
     if (welcomeSection) welcomeSection.style.display = "block"; // Show welcome message
   } else {
     // Only render form fields if the typification has changed
-    if (tipo !== savedTypification) {
-      renderFormFields(tipo); // Render form fields based on selected typification
-      applyShortcutListenersToTextareas(); // Apply listeners to newly rendered fields
+    // OR if we are initializing (savedTypification might be null/different)
+
+    // Logic update: Always render if it's a valid type, to ensure UI is correct on load
+    renderFormFields(tipo);
+    applyShortcutListenersToTextareas();
+
+    // Restore data if preserving
+    if (preserveData) {
+      for (const [id, value] of Object.entries(capturedData)) {
+        const element = document.getElementById(id);
+        if (element) {
+          element.value = value;
+        }
+
+        // Special handling: Map Transferencia observation to Soporte Generado
+        if (isTransferenciaToSoporte && id === "observacionForm") {
+          const soporteGeneradoField = document.getElementById("soporteGenerado");
+          if (soporteGeneradoField) {
+            soporteGeneradoField.value = value;
+          }
+        }
+      }
+      // Re-trigger visual validation or state updates if necessary (e.g. borders)
+      // This might be needed if fields were highlighted as empty before
     }
 
     const mainContainer = document.querySelector(".main-container");
@@ -374,13 +483,22 @@ window.generarObservacionPrincipal = () => {
   // Save all survey data (including the URL) to local storage
   localStorage.setItem("sondeo", JSON.stringify(formDataForSurvey));
 
-  // Make the "Enviar Sondeo" button visible and enabled
-  enviarSondeoBtn.style.display = "inline-flex";
-  enviarSondeoBtn.disabled = false;
+  // Make the "Enviar Sondeo" button visible and enabled ONLY if NOT Transferencia (Soporte)
+  if (selectedTypification !== "Transferencia (Soporte)") {
+    enviarSondeoBtn.style.display = "inline-flex";
+    enviarSondeoBtn.disabled = false;
 
-  // Make the "Enviar Sondeo Persistente" button visible and enabled
-  enviarPersisteBtn.style.display = "inline-flex";
-  enviarPersisteBtn.disabled = false;
+    // Make the "Enviar Sondeo Persistente" button visible and enabled
+    enviarPersisteBtn.style.display = "inline-flex";
+    enviarPersisteBtn.disabled = false;
+  } else {
+    // Ensure they are hidden for Transferencia (Soporte)
+    enviarSondeoBtn.style.display = "none";
+    enviarSondeoBtn.disabled = true;
+
+    enviarPersisteBtn.style.display = "none";
+    enviarPersisteBtn.disabled = true;
+  }
 
   // Attach event listeners (moved from DOMContentLoaded)
   enviarSondeoBtn.onclick = () => {
@@ -517,7 +635,7 @@ window.generarObservacionPrincipal = () => {
   mostrarHistorial(); // Update history display
 };
 
-window.limpiarFormulario = () => {
+window.limpiarFormulario = (showNotification = true) => {
   console.log("Limpiar Formulario clicked");
   const datosForm = document.getElementById("datosForm");
   const observacionForm = document.getElementById("observacionForm");
@@ -574,7 +692,9 @@ window.limpiarFormulario = () => {
   }
 
   // Show success notification
-  window.showNotification('Campos limpiados correctamente', 'success');
+  if (showNotification) {
+    window.showNotification('Campos limpiados correctamente', 'success');
+  }
 };
 
 // Function to clear saved typification
@@ -946,6 +1066,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initialize login to control access
   initializeLogin();
+
+  // Initialize default typification if not set
+  const savedTypification = localStorage.getItem("selectedTypification");
+  if (!savedTypification || savedTypification === "No definida") {
+    window.guardarTipificacion("Transferencia (Soporte)");
+  } else {
+    // Ensure the saved typification is applied and UI updated
+    window.guardarTipificacion(savedTypification);
+  }
   initializeAboutModal(); // Initialize about modal after login to ensure theme is applied
 
   const openAboutBtn = document.getElementById("openAboutBtn");
@@ -1088,8 +1217,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initializeHistory(); // Initialize history modal
 
-  // Load saved typification on page load
-  const savedTypification = localStorage.getItem("selectedTypification");
+  // Load saved typification on page load (already declared above)
+  // const savedTypification = localStorage.getItem("selectedTypification"); // Removed duplicate declaration
   console.log("Loaded saved typification:", savedTypification);
 
   if (savedTypification && savedTypification !== "No definida") {

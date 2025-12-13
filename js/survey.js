@@ -70,6 +70,14 @@ export function collectSurveyData() {
     "Tipo de servicio": document.getElementById("tipoServicio")?.value || "",
     "Tipo de servicio General":
       document.getElementById("tipoServicioGeneral")?.value || "",
+    "motivoComunicacion": document.getElementById("motivoComunicacion")?.value || "", // Added new field
+    "motivoComunicacionOtros": (() => {
+      const motivoValue = document.getElementById("motivoComunicacion")?.value || "";
+      if (motivoValue === "Otros:") {
+        return document.getElementById("motivoComunicacionOtros")?.value || "";
+      }
+      return "";
+    })(),
     "Inconvenientes Instalación/Reparación": (() => {
       const domValue =
         document.getElementById("instalacionReparacion")?.value || "";
@@ -131,7 +139,10 @@ export function buildSurveyUrl() {
 
   let prefixParts = [];
 
-  if (nombre) prefixParts.push(`NOMBRE: ${nombre}`);
+  if (nombre) {
+    const sanitizedNombre = nombre.trim().replace(/\n/g, "");
+    prefixParts.push(`NOMBRE: ${sanitizedNombre}`);
+  }
   if (tarjeta) prefixParts.push(`TARJETA: ${tarjeta}`);
   if (puerto) prefixParts.push(`PUERTO: ${puerto}`);
 
@@ -275,39 +286,28 @@ export function buildSurveyUrl() {
   // Define un mapeo de los campos del formulario a los IDs de entrada de Google Forms.
   // Cada objeto contiene el 'entryId' de Google Forms y la clave correspondiente en 'formDataForSurvey'.
   const surveyFieldMappings = [
-    { entryId: "entry.423430974", formDataKey: "CEDULA_EJECUTIVO" }, // Agent's CEDULA
-    { entryId: "entry.1234567890", formDataKey: "CONTRATO" }, // CONTRATO
-    { entryId: "entry.189057090", formDataKey: "RUT" }, // RUT DEL CLIENTE
-    { entryId: "entry.189057090", formDataKey: "RUT" }, // RUT DEL CLIENTE
-    { entryId: "entry.399236047", formDataKey: "SERVICIO CON LA FALLA" }, // Este campo ahora toma su valor de 'tipoServicio'
-    { entryId: "entry.302927497", formDataKey: "TELÉFONO" }, // TELEFONO
-    { entryId: "entry.1510722740", formDataKey: "DIRECCIÓN CLIENTE" }, // DIRECCION
-    { entryId: "entry.825850316", formDataKey: "ONT" }, // ONT
-    { entryId: "entry.163062648", formDataKey: "OLT" }, // OLT
-    { entryId: "entry.1433390129", formDataKey: "TARJETA" }, // TARJETA
-    { entryId: "entry.825069013", formDataKey: "PUERTO" }, // PUERTO
-    { entryId: "entry.1038443960", formDataKey: "NODO" }, // NODO
+    { entryId: "entry.5694922", formDataKey: "CEDULA_EJECUTIVO" }, // Agent's CEDULA
+    { entryId: "entry.955460218", formDataKey: "RUT" }, // RUT
+    { entryId: "entry.213109764", formDataKey: "SERVICIO CON LA FALLA" }, // SERVICIO CON LA FALLA
+    { entryId: "entry.216870845", formDataKey: "TELÉFONO" }, // TELÉFONO
+    { entryId: "entry.575117188", formDataKey: "DIRECCIÓN CLIENTE" }, // DIRECCIÓN COMPLETA
+    { entryId: "entry.977079435", formDataKey: "ONT" }, // ONT
+    { entryId: "entry.789181094", formDataKey: "OLT" }, // OLT
+    { entryId: "entry.415672825", formDataKey: "TARJETA" }, // TARJETA
+    { entryId: "entry.44152504", formDataKey: "PUERTO" }, // PUERTO
+    { entryId: "entry.137275158", formDataKey: "NODO" }, // NODO
     {
-      entryId: "entry.1833454695",
+      entryId: "entry.1907905929",
       formDataKey: "Inconvenientes Instalación/Reparación",
     },
-    { entryId: "entry.542616353", formDataKey: "El cliente es reincidente" },
-    { entryId: "entry.1760026309", formDataKey: "Suministro Eléctrico" },
-    { entryId: "entry.1092691919", formDataKey: "Generador Eléctrico" },
-    { entryId: "entry.64765887", formDataKey: "Estado Luces" },
+    { entryId: "entry.932424681", formDataKey: "motivoComunicacion" }, // ¿POR QUÉ SE COMUNICA EL CLIENTE?
+    { entryId: "entry.2011962965", formDataKey: "Suministro Eléctrico" },
+    { entryId: "entry.704266693", formDataKey: "Generador Eléctrico" },
+    { entryId: "entry.1566836783", formDataKey: "Estado Luces" },
     {
-      entryId: "entry.505366834",
+      entryId: "entry.1163287562",
       formDataKey: "OBSERVACIÓN CON INFORMACIÓN COMPLETA EN LA VARIBALE SONDEO",
     },
-    { entryId: "entry.1944826262", formDataKey: "Falla Respuesta Genobs" },
-    { entryId: "entry.1322891023", formDataKey: "Control Remoto" },
-    { entryId: "entry.1944826262", formDataKey: "Cambio Pilas" },
-    { entryId: "entry.1322891023", formDataKey: "Prueba Cruzada" },
-    { entryId: "entry.1944826262", formDataKey: "Decodificador" },
-    { entryId: "entry.1322891023", formDataKey: "Reinicio Eléctrico" },
-    { entryId: "entry.1944826262", formDataKey: "Cable HDMI/AV" },
-    { entryId: "entry.1322891023", formDataKey: "Observacion TV" },
-    { entryId: "entry.EMAIL_ENTRY_ID", formDataKey: "CORREO" }, // Placeholder for email entry ID
   ];
 
   // Itera sobre el mapeo y añade los parámetros a la URL.
@@ -320,15 +320,37 @@ export function buildSurveyUrl() {
     urlParams.append(mapping.entryId, value);
   });
 
+  // Special handling for "Otros:" option in motivoComunicacion
+  const motivoComunicacionValue = formDataForSurvey["motivoComunicacion"] || "";
+  const motivoComunicacionOtros = formDataForSurvey["motivoComunicacionOtros"] || "";
+
+  if (motivoComunicacionValue === "Otros:" && motivoComunicacionOtros) {
+    // For Google Forms, when "Otros:" is selected:
+    // 1. Send __other_option__ to mark the "Otros:" checkbox
+    urlParams.set("entry.932424681", "__other_option__");
+    // 2. Send the custom text to the .other_option_response field
+    urlParams.append("entry.932424681.other_option_response", motivoComunicacionOtros);
+
+    console.log("🔍 DEBUG - Otros option detected for Motivo Comunicacion:", {
+      mainEntry: "__other_option__",
+      customText: motivoComunicacionOtros
+    });
+  }
+
   // Manejo especial para el campo de fecha y hora 'Desde Cuando Presenta la Falla'.
   // This declaration is now at the top of the function.
   if (tiempoFalla) {
+    // The new form expects a date string, not separate components
+    // entry.2142598155 is the ID for "¿DESDE CUANDO PRESENTA LA FALLA?"
+    // Assuming the input type="date" or similar returns YYYY-MM-DD
+    // If it's datetime-local, it might need formatting.
+    // Let's assume the value from the DOM is sufficient or needs simple formatting.
+    // However, the user request shows "Tipo: Fecha", which usually implies YYYY-MM-DD.
+    // If the input is datetime-local, we might need to extract just the date.
+    // Let's try sending the value as is first, or format it to YYYY-MM-DD.
     const date = new Date(tiempoFalla);
-    urlParams.append("entry.978502501_year", date.getFullYear());
-    urlParams.append("entry.978502501_month", date.getMonth() + 1);
-    urlParams.append("entry.978502501_day", date.getDate());
-    urlParams.append("entry.978502501_hour", date.getHours());
-    urlParams.append("entry.978502501_minute", date.getMinutes());
+    const formattedDate = date.toISOString().split('T')[0]; // YYYY-MM-DD
+    urlParams.append("entry.2142598155", formattedDate);
   }
 
   // 2. Se construye la URL final COMPLETA concatenando la URL base con los parámetros de sondeo.

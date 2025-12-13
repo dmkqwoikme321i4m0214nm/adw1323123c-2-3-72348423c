@@ -161,12 +161,29 @@ export const toggleTvQuestions = () => {
   }
 };
 
+// Function to toggle Motivo Comunicacion Otros input
+export const toggleMotivoComunicacionOtros = () => {
+  const motivoSelect = document.getElementById("motivoComunicacion");
+  const otrosContainer = document.getElementById("motivoComunicacionOtrosContainer");
+  const otrosInput = document.getElementById("motivoComunicacionOtros");
+
+  if (motivoSelect && otrosContainer && otrosInput) {
+    if (motivoSelect.value === "Otros:") {
+      otrosContainer.style.display = "block";
+    } else {
+      otrosContainer.style.display = "none";
+      otrosInput.value = ""; // Clear input when hidden
+    }
+  }
+};
+
 // Function to clear Genobs fields
 export const limpiarGenobsCampos = () => {
   console.log("Limpiar Genobs Campos clicked");
   // Clear fields in the genobs modal
   const fieldsToClear = [
     "suministroElectrico", "generadorElectrico", "tiempoFalla", "tipoServicio", "tipoServicioGeneral",
+    "motivoComunicacion", "motivoComunicacionOtros", // Added new fields
     "estadoOnt", "clienteMasiva", "fallaMasiva", "visitaTecnica",
     "soporteGenerado", "instalacionReparacion", "estadoLuces",
     "controlRemoto", "cambioPilas", "pruebaCruzada", "clienteReincidente",
@@ -204,6 +221,12 @@ export const limpiarGenobsCampos = () => {
   if (fallaTvSwitch) {
     fallaTvSwitch.checked = false;
   }
+
+  // Hide Motivo Comunicacion Otros container
+  const motivoOtrosContainer = document.getElementById("motivoComunicacionOtrosContainer");
+  if (motivoOtrosContainer) {
+    motivoOtrosContainer.style.display = "none";
+  }
 };
 
 // Function to validate the Genobs modal form fields
@@ -214,6 +237,7 @@ export const validateGenobsForm = () => {
     "tiempoFalla",
     "tipoServicio",
     "tipoServicioGeneral",
+    "motivoComunicacion", // Added new field
     "instalacionReparacion",
     "clienteReincidente",
     "estadoLuces",
@@ -247,6 +271,25 @@ export const validateGenobsForm = () => {
       }
     }
   });
+
+  // Conditional validation for Motivo Comunicacion -> Otros
+  const motivoComunicacion = document.getElementById("motivoComunicacion");
+  const motivoComunicacionOtros = document.getElementById("motivoComunicacionOtros");
+  if (
+    motivoComunicacion &&
+    motivoComunicacion.value === "Otros:" &&
+    motivoComunicacionOtros
+  ) {
+    if (motivoComunicacionOtros.value.trim() === "") {
+      allFieldsFilled = false;
+      if (!firstEmptyField) {
+        firstEmptyField = motivoComunicacionOtros;
+      }
+      motivoComunicacionOtros.style.border = "2px solid var(--danger-color)";
+    } else {
+      motivoComunicacionOtros.style.border = "";
+    }
+  }
 
   // Conditional validation for Redes Unificadas -> Otros
   const redesUnificadas = document.getElementById("redesUnificadas");
@@ -348,3 +391,4 @@ window.actualizarPreguntas = actualizarPreguntas;
 window.toggleTvQuestions = toggleTvQuestions;
 window.limpiarGenobsCampos = limpiarGenobsCampos;
 window.validateGenobsForm = validateGenobsForm;
+window.toggleMotivoComunicacionOtros = toggleMotivoComunicacionOtros;
