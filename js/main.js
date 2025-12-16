@@ -586,7 +586,7 @@ window.generarObservacionPrincipal = () => {
       } else if (selectedTypification === "SAC") {
         prefix = "SAC";
       }
-      preliminaryObservation += `${prefix} ${formattedDate} ID de Llamada: ${mainFormData["ID"] || ""
+      preliminaryObservation += `${prefix} ${formattedDate} ID: ${mainFormData["ID"] || ""
         } TEL: ${mainFormData["TELÉFONO"] || ""}\n`;
     }
   });
@@ -825,7 +825,7 @@ window.generarObservacionFinal = () => {
       const today = new Date();
       const formattedDate = `${today.getDate()}/${today.getMonth() + 1
         }/${today.getFullYear()}`;
-      fullObservation += `SOP ${formattedDate} ID de Llamada: ${formDataForSurvey["ID"] || ""
+      fullObservation += `SOP ${formattedDate} ID: ${formDataForSurvey["ID"] || ""
         } TEL: ${TELÉFONO || ""}\n`;
     }
   });

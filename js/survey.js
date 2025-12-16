@@ -157,7 +157,7 @@ export function buildSurveyUrl() {
   }
 
   let sopLine = `${sopPrefix} ${formattedDate}`;
-  if (clienteID) sopLine += ` ID de Llamada: ${clienteID}`;
+  if (clienteID) sopLine += ` ID: ${clienteID}`;
   if (telefono) sopLine += ` TEL: ${telefono}`;
   prefixParts.push(sopLine);
 

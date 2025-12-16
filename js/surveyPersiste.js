@@ -14,6 +14,7 @@ export function collectSurveyPersisteData() {
   // Data from the main form
   formDataForSurveyPersiste = {
     "CEDULA DEL EJECUTIVO": documentNumber, // Get user ID from localStorage
+    "ID_CLIENTE": document.getElementById("clienteId")?.value || "", // Call ID from the form
     RUT: document.getElementById("clienteRUT")?.value || "",
     Contrato: document.getElementById("clienteContrato")?.value || "",
     "SERVICIO CON LA FALLA":
@@ -233,12 +234,12 @@ export function buildSurveyPersisteUrl() {
   // Cada objeto contiene el 'entryId' de Google Forms y la clave correspondiente en 'formDataForSurveyPersiste'.
   const surveyFieldMappings = [
     { entryId: "entry.1279701728", formDataKey: "CEDULA DEL EJECUTIVO" }, // CEDULA DEL EJECUTIVO
-    { entryId: "entry.1796537453", formDataKey: "RUT" }, // RUT DEL CLIENTE
-    { entryId: "entry.737091952", formDataKey: "Contrato" }, // NOMBRE (usando Contrato)
+    { entryId: "entry.737091952", formDataKey: "RUT" }, // RUT
+    { entryId: "entry.1796537453", formDataKey: "ID_CLIENTE" }, // (ID) DE LA LLAMADA ACTUAL
     { entryId: "entry.1274396", formDataKey: "SERVICIO CON LA FALLA" }, // SERVICIO CON LA FALLA
-    { entryId: "entry.354392636", formDataKey: "DIRECCIÓN CLIENTE" }, // DIRECCION
-    { entryId: "entry.971510061", formDataKey: "TELÉFONO" }, // TELEFONO
-    { entryId: "entry.2068363297", formDataKey: "ONT" }, // ONT
+    { entryId: "entry.354392636", formDataKey: "Contrato" }, // CÓDIGO DE CONTRATO
+    { entryId: "entry.971510061", formDataKey: "ONT" }, // ONT
+    { entryId: "entry.2068363297", formDataKey: "OLT" }, // OLT
     { entryId: "entry.16222912", formDataKey: "TIENE PERDIDA DE MONITOREO?" }, // TIENE PERDIDA DE MONITOREO
     { entryId: "entry.288532483", formDataKey: "CLIENTE CONECTADO POR" }, // EL CLIENTE SE ENCUENTRA CONECTADO POR (WIFI/CABLE/AMBOS)
     { entryId: "entry.1848968622", formDataKey: "Estado Luces" }, // TIENE LUCES EN QUE ESTADO
