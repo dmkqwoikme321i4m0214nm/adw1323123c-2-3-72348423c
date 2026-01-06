@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cronómetro - TypifyPro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&family=Roboto:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script>
+        // Early execution to prevent UI flicker
+        (function () {
+            const theme = localStorage.getItem('selectedTheme') || 'tema_mundo';
+            if (theme !== 'tema_mundo') {
+                document.documentElement.setAttribute('data-theme', theme === 'DARK' ? 'dark_blue' : theme);
+            }
+            const isHidden = localStorage.getItem('pipTimer_headerHidden') === 'true';
+            if (isHidden) {
+                document.documentElement.classList.add('header-initially-hidden');
+            }
+        })();
+    </script>
+    <link rel="stylesheet" href="css/styles.css">
+
+
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&family=Roboto:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--font-main, 'Inter', 'Roboto', sans-serif);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            font-size: 13px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+        }
+
+        .pip-header {
+            position: sticky;
+            top: 0;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            z-index: 10;
+            border-bottom: 1px solid var(--glass-border);
+            padding: 4px;
+            display: flex;
+            justify-content: center;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+        }
+
+        .pip-header.hidden {
+            transform: translateY(-100%);
+            opacity: 0;
+            pointer-events: none;
+            position: absolute;
+        }
+
+        /* Prevent flash on startup */
+        html.header-initially-hidden .pip-header {
+            transform: translateY(-100%);
+            opacity: 0;
+            pointer-events: none;
+            position: absolute;
+        }
+
+        .no-transition {
+            transition: none !important;
+        }
+
+        .pip-tabs {
+            display: flex;
+            gap: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 3px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            width: 100%;
+        }
+
+        .pip-tab {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            padding: 6px 4px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex: 1;
+            transition: all 0.2s ease;
+        }
+
+        .pip-tab i {
+            font-size: 18px;
+        }
+
+        .pip-tab:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .pip-tab.active {
+            background: var(--accent-primary);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+        }
+
+        .pip-content {
+            position: relative;
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 12px;
+        }
+
+        .tab-pane {
+            display: none;
+            height: 100%;
+        }
+
+        .tab-pane.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #timer-pane {
+            justify-content: center;
+            position: relative;
+        }
+
+        #pipDisplay {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            color: var(--text-primary);
+        }
+
+        .pip-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .pip-btn {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--accent-primary);
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(4px);
+        }
+
+        .pip-btn:hover {
+            background: var(--accent-primary);
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px var(--accent-primary);
+        }
+
+        .pip-btn.reset {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: var(--danger-color);
+        }
+
+        .pip-btn.reset:hover {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .preset-list,
+        .settings-list {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .preset-item,
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .preset-item:hover,
+        .setting-item:hover {
+            border-color: var(--accent-primary);
+            transform: translateX(2px);
+        }
+
+        .preset-item span,
+        .setting-item span {
+            font-size: 0.85rem;
+            color: var(--text-primary);
+        }
+
+        .setting-item.selected {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: var(--accent-primary);
+        }
+
+        .setting-item.selected span {
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+
+        .item-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .item-actions button {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .item-actions button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        .item-actions .check-icon {
+            color: #4ade80;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .setting-item.selected .check-icon {
+            opacity: 1;
+        }
+
+        .settings-title {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            align-self: flex-start;
+        }
+
+        .fab-btn {
+            position: fixed;
+            bottom: 12px;
+            right: 12px;
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.5);
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .fab-btn:hover {
+            transform: scale(1.1) rotate(90deg);
+        }
+
+        .fab-btn.hidden {
+            transform: scale(0) rotate(-90deg);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .toggle-header-btn {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--accent-primary);
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .toggle-header-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            pointer-events: none;
+        }
+
+        .toggle-header-btn:hover {
+            background: var(--accent-primary);
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px var(--accent-primary);
+        }
+
+        .toggle-header-btn i {
+            font-size: 20px;
+        }
+
+        .modal-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            backdrop-filter: blur(8px);
+            display: none;
+            flex-direction: column;
+            z-index: 2000;
+            padding: 8px 12px;
+        }
+
+        .modal-header {
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 0 0 4px 0;
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+        }
+
+        .modal-body input {
+            padding: 6px 8px;
+            background: var(--glass-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--glass-border);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            width: 100%;
+            outline: none;
+        }
+
+        .modal-body input:focus {
+            border-color: var(--accent-primary);
+        }
+
+        .time-picker-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 4px;
+            border-radius: 8px;
+        }
+
+        .picker-value {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 1.4rem;
+            font-weight: 700;
+            width: 36px;
+            text-align: center;
+            color: var(--text-primary);
+        }
+
+        .number-picker {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .time-separator {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .picker-btn {
+            background: var(--accent-primary);
+            border: 1px solid var(--accent-primary);
+            color: white;
+            width: 18px;
+            height: 18px;
+            font-size: 8px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 6px;
+            justify-content: stretch;
+            padding-top: 2px;
+            width: 100%;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 8px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .modal-btn.confirm {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .modal-btn.cancel {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--glass-border);
+        }
+
+        .modal-btn.danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .alarm-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(239, 68, 68, 0.95);
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2010;
+            padding: 24px;
+            animation: alarmPulse 1s infinite alternate;
+        }
+
+        .alarm-message {
+            font-size: 1.1rem;
+            margin-bottom: 24px;
+            text-align: center;
+            color: white;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            max-width: 240px;
+            line-height: 1.4;
+        }
+
+        .alarm-stop-btn {
+            background: white;
+            color: var(--danger-color);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: btnShake 0.5s infinite;
+        }
+
+        .alarm-stop-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            background: #f8fafc;
+        }
+
+        .alarm-stop-btn:active {
+            transform: scale(0.95);
+        }
+
+        @keyframes alarmPulse {
+            0% {
+                background: rgba(239, 68, 68, 0.9);
+            }
+
+            100% {
+                background: rgba(185, 28, 28, 1);
+            }
+        }
+
+        @keyframes btnShake {
+
+            0%,
+            100% {
+                transform: rotate(0deg);
+            }
+
+            25% {
+                transform: rotate(1deg);
+            }
+
+            75% {
+                transform: rotate(-1deg);
+            }
+        }
+    </style>
+</head>
+
+<body class="no-transition">
+    <div class="pip-header">
+        <div class="pip-tabs" style="width: 100%;">
+            <button class="pip-tab active" data-tab="timer">
+                <i class="material-icons">timer</i>
+                <span>Cronómetro</span>
+            </button>
+            <button class="pip-tab" data-tab="manage">
+                <i class="material-icons">list_alt</i>
+                <span>Gestionar</span>
+            </button>
+            <button class="pip-tab" data-tab="settings">
+                <i class="material-icons">settings</i>
+                <span>Ajustes</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="pip-content">
+        <!-- Timer Pane -->
+        <div id="timer-pane" class="tab-pane active">
+            <div id="pipDisplay">00:00:00</div>
+            <div class="pip-buttons">
+                <button class="pip-btn" id="startStopBtn">
+                    <i class="material-icons" id="startStopIcon">play_arrow</i>
+                </button>
+                <button class="pip-btn reset" id="resetBtn">
+                    <i class="material-icons">restart_alt</i>
+                </button>
+                <button class="toggle-header-btn" id="toggleHeaderBtn">
+                    <i class="material-icons" id="toggleHeaderIcon">visibility_off</i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Manage Pane -->
+        <div id="manage-pane" class="tab-pane">
+            <ul class="preset-list" id="presetList"></ul>
+            <button class="fab-btn" id="fabBtn">
+                <i class="material-icons">add</i>
+            </button>
+        </div>
+
+        <!-- Settings Pane -->
+        <div id="settings-pane" class="tab-pane">
+            <h4 class="settings-title">Selecciona el audio de alarma</h4>
+            <ul class="settings-list" id="settingsList"></ul>
+        </div>
+    </div>
+
+    <div class="modal-container" id="modalContainer"></div>
+
+    <script src="js/chrono-pip.js"></script>
+</body>
+
+</html>

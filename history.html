@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Early Theme Init -->
+    <!-- Early Theme Init -->
+    <script>
+        (function () {
+            // Retrieve theme, handling legacy keys
+            let theme = localStorage.getItem('selectedTheme') || 'tema_mundo';
+            if (theme === 'MUNDO') theme = 'tema_mundo';
+            if (theme === 'DARK') theme = 'dark_blue';
+
+            const bgColors = {
+                'tema_mundo': '#0b3f4b',
+                'dark_blue': '#152533',
+                'modern_black': '#0f172a'
+            };
+            const bgColor = bgColors[theme] || '#0b3f4b';
+
+            // 1. Set HTML background immediately (inline)
+            document.documentElement.style.backgroundColor = bgColor;
+
+            // 2. Inject Critical CSS for Body to prevent white flash
+            // This runs before external CSS loads
+            const style = document.createElement('style');
+            style.innerHTML = `html, body { background-color: ${bgColor}; }`;
+            document.head.appendChild(style);
+
+            // 3. Set Theme Attribute
+            if (theme !== 'tema_mundo') {
+                document.documentElement.setAttribute('data-theme', theme);
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+
+            // 4. Clean up transition blocker
+            window.addEventListener('DOMContentLoaded', () => {
+                // Small delay to ensure paint has stabilized
+                requestAnimationFrame(() => {
+                    document.body.classList.remove('preload');
+                });
+            });
+        })();
+    </script>
+    <title>Historial | TypifyPro 4.0.0</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+
+    <!-- Fonts (Google Fonts) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- Unified Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <!-- Excel Export Library -->
+
+</head>
+
+<body class="preload">
+    <div class="dashboard-layout">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar glass-panel">
+            <div class="sidebar-header">
+                <img src="assets/logo.svg" alt="Logo" class="sidebar-logo">
+                <button class="sidebar-toggle" onclick="toggleSidebar()" title="Alternar menú lateral">
+                    <span class="material-icons">menu</span>
+                </button>
+            </div>
+            <script>
+                (function () {
+                    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true' || window.innerWidth <= 1024;
+                    if (isCollapsed) {
+                        const sidebar = document.currentScript.parentElement;
+                        sidebar.classList.add('collapsed');
+                        const icon = sidebar.querySelector('.sidebar-toggle .material-icons');
+                        if (icon) icon.textContent = 'chevron_right';
+                    }
+                })();
+            </script>
+            <ul class="nav-links">
+                <li>
+                    <a href="dashboard.html">
+                        <span class="material-icons">dashboard</span>
+                        <span class="nav-text">Generador</span>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="history.html">
+                        <span class="material-icons">history</span>
+                        <span class="nav-text">Historial</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="tools.html">
+                        <span class="material-icons">handyman</span>
+                        <span class="nav-text">Herramientas</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="settings.html">
+                        <span class="material-icons">settings</span>
+                        <span class="nav-text">Configuración</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="about.html">
+                        <span class="material-icons">info</span>
+                        <span class="nav-text">Acerca de</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <img src="assets/user.png" alt="User" class="user-avatar"
+                        style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
+                    <span id="userDisplay" class="nav-text">Usuario</span>
+                </div>
+                <button onclick="window.AuthModule.logout()" class="logout-btn-mini" title="Cerrar Sesión">
+                    <span class="material-icons">logout</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar glass-panel">
+                <div class="top-left">
+                    <h2>Historial de Gestiones</h2>
+                </div>
+                <div class="top-right">
+                    <div class="tmo-timer" id="headerTmoTimer" onclick="window.handleHeaderTimerClick()"
+                        title="Ir al Gestor TMO">
+                        <span class="material-icons">timer</span>
+                        <span id="tmoCounter">00:00</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="glass-panel"
+                style="flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; padding: 1.5rem;">
+                <!-- Redesigned Toolbar -->
+                <div class="toolbar"
+                    style="display: flex; flex-direction: column; gap: 1.2rem; margin-bottom: 2rem; background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 16px; border: 1px solid var(--glass-border);">
+
+                    <!-- Top Row: Filters -->
+                    <div style="display: flex; gap: 1.2rem; align-items: center; flex-wrap: wrap;">
+                        <!-- Search Box -->
+                        <div class="search-box" style="flex: 1.5; min-width: 300px;">
+                            <span class="material-icons">search</span>
+                            <input type="text" id="historySearch"
+                                placeholder="Buscar por RUT, Nombre, Observación o Detalle...">
+                        </div>
+
+                        <!-- Date Selector Card (Consolidated) -->
+                        <div
+                            style="display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,0.25); padding: 6px 18px; border-radius: 12px; border: 1px solid var(--glass-border); min-width: 320px;">
+                            <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+                                <span class="material-icons"
+                                    style="font-size: 18px; color: var(--accent-primary);">calendar_today</span>
+                                <div style="display: flex; flex-direction: column; flex: 1;">
+                                    <span
+                                        style="font-size: 0.6em; color: var(--text-secondary); text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;">Desde</span>
+                                    <input type="date" id="filterDateFrom"
+                                        style="background: none; border: none; color: white; font-size: 0.85rem; outline: none; width: 100%; cursor: pointer;">
+                                </div>
+                            </div>
+                            <div style="width: 1px; height: 28px; background: var(--glass-border);"></div>
+                            <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+                                <span class="material-icons"
+                                    style="font-size: 18px; color: var(--accent-primary);">calendar_today</span>
+                                <div style="display: flex; flex-direction: column; flex: 1;">
+                                    <span
+                                        style="font-size: 0.6em; color: var(--text-secondary); text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;">Hasta</span>
+                                    <input type="date" id="filterDateTo"
+                                        style="background: none; border: none; color: white; font-size: 0.85rem; outline: none; width: 100%; cursor: pointer;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Row: Transfer & Management Tools -->
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); padding: 0.8rem 1.4rem; border-radius: 12px; border: 1px dashed var(--glass-border);">
+                        <div style="display: flex; gap: 2.5rem; align-items: center;">
+                            <!-- Export Group -->
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span
+                                    style="font-size: 0.75em; font-weight: 700; color: var(--text-secondary); letter-spacing: 0.8px;">EXPORTAR:</span>
+                                <div style="display: flex; gap: 6px;">
+                                    <button class="btn-icon-circle small" onclick="window.HistoryModule.exportExcel()"
+                                        title="Exportar a Excel (.xlsx)"
+                                        style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2);">
+                                        <span class="material-icons"
+                                            style="color: #10b981; font-size: 18px;">table_view</span>
+                                    </button>
+                                    <button class="btn-icon-circle small" onclick="window.exportHistoryTXT()"
+                                        title="Exportar a Texto (.txt)"
+                                        style="background: rgba(255, 255, 255, 0.05); border-color: var(--glass-border);">
+                                        <span class="material-icons"
+                                            style="color: #e5e7eb; font-size: 18px;">description</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Vertical Divider -->
+                            <div style="width: 1px; height: 24px; background: var(--glass-border);"></div>
+
+                            <!-- Import Group -->
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span
+                                    style="font-size: 0.75em; font-weight: 700; color: var(--text-secondary); letter-spacing: 0.8px;">IMPORTAR:</span>
+                                <div style="display: flex; gap: 6px;">
+                                    <button class="btn-icon-circle small"
+                                        onclick="document.getElementById('importExcelFile').click()"
+                                        title="Importar desde Excel"
+                                        style="background: rgba(255,255,255,0.05); border-color: var(--glass-border);">
+                                        <span class="material-icons"
+                                            style="font-size: 18px; color: #fbbf24;">upload_file</span>
+                                    </button>
+                                    <button class="btn-icon-circle small"
+                                        onclick="document.getElementById('importTXTFile').click()"
+                                        title="Importar desde TXT"
+                                        style="background: rgba(255,255,255,0.05); border-color: var(--glass-border);">
+                                        <span class="material-icons"
+                                            style="font-size: 18px; color: #94a3b8;">article</span>
+                                    </button>
+                                </div>
+                                <!-- Invisible Inputs -->
+                                <input type="file" id="importExcelFile" style="display: none;" accept=".xlsx,.xls"
+                                    onchange="window.HistoryModule.importExcel(this.files[0])">
+                                <input type="file" id="importTXTFile" style="display: none;" accept=".txt"
+                                    onchange="window.HistoryModule.importTXT(this.files[0])">
+                            </div>
+                        </div>
+
+                        <!-- Management: Clear Action -->
+                        <button class="btn-secondary" onclick="window.HistoryModule.clear()"
+                            style="border-color: rgba(239, 68, 68, 0.3); color: #ef4444; font-size: 0.8rem; padding: 7px 15px; display: flex; align-items: center; gap: 8px; border-radius: 10px; font-weight: 500;">
+                            <span class="material-icons" style="font-size: 18px;">delete_sweep</span>
+                            Limpiar Historial
+                        </button>
+                    </div>
+                </div>
+
+                <!-- History Table Wrapper -->
+                <div class="premium-table-container" style="flex: 1; overflow-y: auto; min-height: 0;">
+                    <table class="premium-table">
+                        <thead style="position: sticky; top: 0; background: var(--bg-secondary); z-index: 1;">
+                            <tr>
+                                <th style="width: 15%;">Fecha</th>
+                                <th style="width: 12%;">RUT</th>
+                                <th style="width: 10%;">Categoría</th>
+                                <th style="width: 45%;">Observación</th>
+                                <th style="width: 18%;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <!-- Rows injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Detail Modal -->
+    <div id="historyDetailModal" class="modal">
+        <div class="modal-content" style="max-width: 1000px; max-height: 95vh; display: flex; flex-direction: column;">
+            <div class="modal-header">
+                <h3>Detalle de Gestión</h3>
+                <span class="close-modal"
+                    onclick="document.getElementById('historyDetailModal').style.display = 'none'">&times;</span>
+            </div>
+            <div class="modal-body" style="padding: 1.5rem; overflow-y: auto; flex: 1;">
+                <div id="historyDetailContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary"
+                    onclick="document.getElementById('historyDetailModal').style.display = 'none'">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <div class="modal-header">
+                <h3>Confirmar Acción</h3>
+            </div>
+            <div class="modal-body" style="padding: 20px 0;">
+                <p id="confirmMessage" style="color: var(--text-secondary);"></p>
+            </div>
+            <div class="modal-footer" style="display: flex; gap: 10px; justify-content: center;">
+                <button id="confirmBtn" class="login-btn"
+                    style="background: var(--danger-color); flex: 1; padding: 10px; border-radius: 8px;">Eliminar</button>
+                <button onclick="document.getElementById('confirmModal').style.display = 'none'" class="btn-secondary"
+                    style="background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); color: white; flex: 1; padding: 10px; border-radius: 8px; cursor: pointer;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Links Modal -->
+    <div id="linksModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>Enlaces de Gestión</h3>
+                <span class="close-modal"
+                    onclick="document.getElementById('linksModal').style.display = 'none'">&times;</span>
+            </div>
+            <div class="modal-body" style="padding: 20px; display: flex; flex-direction: column; gap: 20px;">
+                <!-- Sondeo Section -->
+                <div id="sondeoLinksSection" style="display: none;">
+                    <h4 style="color: #3b82f6; display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                        <span class="material-icons">poll</span> Sondeo (Encuesta)
+                    </h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <button class="btn-secondary small-btn" id="modalOpenSurvey"
+                            style="display: flex; align-items: center; justify-content: center; gap: 5px; padding: 10px;">
+                            <span class="material-icons" style="font-size: 18px;">open_in_new</span> Abrir
+                        </button>
+                        <button class="btn-primary small-btn" id="modalCopySurvey"
+                            style="display: flex; align-items: center; justify-content: center; gap: 5px; padding: 10px;">
+                            <span class="material-icons" style="font-size: 18px;">content_copy</span> Copiar
+                        </button>
+                        <button class="btn-secondary small-btn" id="modalOpenAutoSurvey"
+                            style="display: flex; align-items: center; justify-content: center; gap: 5px; padding: 10px; font-size: 0.85em;">
+                            <span class="material-icons" style="font-size: 18px;">launch</span> Abrir Auto-Envío
+                        </button>
+                        <button class="btn-primary small-btn" id="modalCopyAutoSurvey"
+                            style="display: flex; align-items: center; justify-content: center; gap: 5px; padding: 10px; font-size: 0.85em;">
+                            <span class="material-icons" style="font-size: 18px;">send</span> Copiar Auto-Envío
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Persiste Section -->
+                <div id="persisteLinksSection" style="display: none;">
+                    <h4 style="color: #f59e0b; display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                        <span class="material-icons">support_agent</span> Cliente Persiste
+                    </h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <button class="btn-secondary small-btn" id="modalOpenPersiste"
+                            style="display: flex; align-items: center; justify-content: center; gap: 5px; padding: 10px;">
+                            <span class="material-icons" style="font-size: 18px;">open_in_new</span> Abrir
+                        </button>
+                        <button class="btn-primary small-btn" id="modalCopyPersiste"
+                            style="display: flex; align-items: center; justify-content: center; gap: 5px; padding: 10px;">
+                            <span class="material-icons" style="font-size: 18px;">content_copy</span> Copiar
+                        </button>
+                        <button class="btn-secondary small-btn" id="modalOpenAutoPersiste"
+                            style="display: flex; align-items: center; justify-content: center; gap: 5px; padding: 10px; font-size: 0.85em;">
+                            <span class="material-icons" style="font-size: 18px;">launch</span> Abrir Auto-Envío
+                        </button>
+                        <button class="btn-primary small-btn" id="modalCopyAutoPersiste"
+                            style="display: flex; align-items: center; justify-content: center; gap: 5px; padding: 10px; font-size: 0.85em;">
+                            <span class="material-icons" style="font-size: 18px;">send</span> Copiar Auto-Envío
+                        </button>
+                    </div>
+                </div>
+
+                <p id="noLinksMessage" style="color: var(--text-secondary); text-align: center; display: none;">
+                    Esta gestión no admite enlaces de sondeo o persiste.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="document.getElementById('linksModal').style.display = 'none'"
+                    class="btn-secondary">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Excel Export Library -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <!-- Modules -->
+    <script type="module" src="js/modules/auth.js"></script>
+    <script type="module" src="js/modules/ui.js"></script>
+    <script type="module" src="js/modules/history.js"></script>
+    <script type="module" src="js/modules/survey.js"></script>
+    <script type="module" src="js/modules/surveyPersiste.js"></script>
+    <script type="module" src="js/modules/chrono.js"></script>
+    <script type="module" src="js/modules/logger.js"></script>
+</body>
+
+</html>

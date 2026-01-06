@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <!-- Early Theme Init -->
+    <script>
+        (function () {
+            // Retrieve theme, handling legacy keys
+            let theme = localStorage.getItem('selectedTheme') || 'tema_mundo';
+            if (theme === 'MUNDO') theme = 'tema_mundo';
+            if (theme === 'DARK') theme = 'dark_blue';
+
+            const bgColors = {
+                'tema_mundo': '#0b3f4b',
+                'dark_blue': '#152533',
+                'modern_black': '#0f172a'
+            };
+            const bgColor = bgColors[theme] || '#0b3f4b';
+
+            // 1. Set HTML background immediately (inline)
+            document.documentElement.style.backgroundColor = bgColor;
+
+            // 2. Inject Critical CSS for Body to prevent white flash
+            // This runs before external CSS loads
+            const style = document.createElement('style');
+            style.innerHTML = `html, body { background-color: ${bgColor}; }`;
+            document.head.appendChild(style);
+
+            // 3. Set Theme Attribute
+            if (theme !== 'tema_mundo') {
+                document.documentElement.setAttribute('data-theme', theme);
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+
+            // 4. Clean up transition blocker
+            window.addEventListener('DOMContentLoaded', () => {
+                // Small delay to ensure paint has stabilized
+                requestAnimationFrame(() => {
+                    document.body.classList.remove('preload');
+                });
+            });
+        })();
+    </script>
+    <title>Configuración | TypifyPro 4.0.0</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+
+    <!-- Fonts (Google Fonts) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- Unified Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body class="preload">
+    <div class="dashboard-layout">
+        <nav class="sidebar glass-panel">
+            <div class="sidebar-header">
+                <img src="assets/logo.svg" alt="Logo" class="sidebar-logo">
+                <button class="sidebar-toggle" onclick="toggleSidebar()" title="Alternar menú lateral">
+                    <span class="material-icons">menu</span>
+                </button>
+            </div>
+            <script>
+                (function () {
+                    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true' || window.innerWidth <= 1024;
+                    if (isCollapsed) {
+                        const sidebar = document.currentScript.parentElement;
+                        sidebar.classList.add('collapsed');
+                        const icon = sidebar.querySelector('.sidebar-toggle .material-icons');
+                        if (icon) icon.textContent = 'chevron_right';
+                    }
+                })();
+            </script>
+            <ul class="nav-links">
+                <li>
+                    <a href="dashboard.html">
+                        <span class="material-icons">dashboard</span>
+                        <span class="nav-text">Generador</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="history.html">
+                        <span class="material-icons">history</span>
+                        <span class="nav-text">Historial</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="tools.html">
+                        <span class="material-icons">handyman</span>
+                        <span class="nav-text">Herramientas</span>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="settings.html">
+                        <span class="material-icons">settings</span>
+                        <span class="nav-text">Configuración</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="about.html">
+                        <span class="material-icons">info</span>
+                        <span class="nav-text">Acerca de</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <img src="assets/user.png" alt="User" class="user-avatar"
+                        style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
+                    <span id="userDisplay" class="nav-text">Usuario</span>
+                </div>
+                <button onclick="window.AuthModule.logout()" class="logout-btn-mini" title="Cerrar Sesión">
+                    <span class="material-icons">logout</span>
+                </button>
+            </div>
+        </nav>
+        <main class="main-content">
+            <header class="top-bar glass-panel">
+                <div class="top-left">
+                    <h2>Configuración</h2>
+                </div>
+                <div class="top-right">
+                    <div class="tmo-timer" id="headerTmoTimer" onclick="window.handleHeaderTimerClick()"
+                        title="Ir al Gestor TMO">
+                        <span class="material-icons">timer</span>
+                        <span id="tmoCounter">00:00</span>
+                    </div>
+                </div>
+            </header>
+
+            <div style="flex: 1; overflow-y: auto; padding: 1rem;">
+
+                <!-- Personalization Section -->
+                <section style="margin-bottom: 2rem;">
+                    <h3
+                        style="margin-bottom: 1rem; color: var(--text-primary); border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem;">
+                        Personalización</h3>
+
+                    <div
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+
+                        <!-- Theme: Mundo (Default) -->
+                        <div class="glass-panel theme-card" onclick="window.SettingsModule.applyTheme('tema_mundo')"
+                            style="padding: 1rem; cursor: pointer; text-align: center; border: 2px solid transparent;">
+                            <div
+                                style="height: 60px; background: linear-gradient(135deg, #0b3f4b 50%, #a19f0e 50%); border-radius: 8px; margin-bottom: 0.5rem; opacity: 0.8;">
+                            </div>
+                            <h4 style="margin: 0; font-size: 1rem;">Mundo (Original)</h4>
+                        </div>
+
+                        <!-- Theme: Dark Blue -->
+                        <div class="glass-panel theme-card" onclick="window.SettingsModule.applyTheme('dark_blue')"
+                            style="padding: 1rem; cursor: pointer; text-align: center; border: 2px solid transparent;">
+                            <div
+                                style="height: 60px; background: linear-gradient(135deg, #152533 50%, #3b82f6 50%); border-radius: 8px; margin-bottom: 0.5rem; opacity: 0.8;">
+                            </div>
+                            <h4 style="margin: 0; font-size: 1rem;">Dark Blue</h4>
+                        </div>
+
+                        <!-- Theme: Tema Modelo (Moderno) -->
+                        <div class="glass-panel theme-card" onclick="window.SettingsModule.applyTheme('modern_black')"
+                            style="padding: 1rem; cursor: pointer; text-align: center; border: 2px solid transparent;">
+                            <div
+                                style="height: 60px; background: linear-gradient(135deg, #0f172a 50%, #7c3aed 50%); border-radius: 8px; margin-bottom: 0.5rem; opacity: 0.8;">
+                            </div>
+                            <h4 style="margin: 0; font-size: 1rem;">Tema Modelo</h4>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- Data Management Section -->
+                <section style="margin-bottom: 2rem;">
+                    <h3
+                        style="margin-bottom: 1rem; color: var(--text-primary); border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem;">
+                        Gestión de Datos</h3>
+
+                    <div
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+
+                        <!-- Backup Card -->
+                        <div class="glass-panel" style="padding: 1.5rem;">
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                                <span class="material-icons"
+                                    style="font-size: 36px; color: var(--success-color);">cloud_download</span>
+                                <div>
+                                    <h4 style="margin: 0; font-size: 1.1rem;">Copia de Seguridad</h4>
+                                    <p style="margin: 0; font-size: 0.8rem; color: var(--text-secondary);">Exportar
+                                        todos los datos</p>
+                                </div>
+                            </div>
+                            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                                Descarga un archivo JSON con tu configuración TMO y preferencias.
+                            </p>
+                            <p
+                                style="font-size: 0.8rem; color: var(--accent-primary); margin-bottom: 1rem; background: rgba(59, 130, 246, 0.1); padding: 8px; border-radius: 6px; border-left: 3px solid var(--accent-primary);">
+                                <i class="material-icons" style="font-size: 14px; vertical-align: middle;">info</i>
+                                <strong>Nota:</strong> Para exportar tu <em>Historial de Tipificaciones</em>, por favor
+                                hazlo desde la sección <a href="history.html"
+                                    style="color: var(--accent-primary); text-decoration: underline;">Historial</a>.
+                            </p>
+                            <button class="btn-primary" onclick="window.SettingsModule.exportAllData()"
+                                style="width: 100%;">
+                                <span class="material-icons">download</span> Respaldar Todo
+                            </button>
+                        </div>
+
+                        <!-- Restore Card -->
+                        <div class="glass-panel" style="padding: 1.5rem;">
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                                <span class="material-icons"
+                                    style="font-size: 36px; color: var(--accent-primary);">cloud_upload</span>
+                                <div>
+                                    <h4 style="margin: 0; font-size: 1.1rem;">Restaurar Datos</h4>
+                                    <p style="margin: 0; font-size: 0.8rem; color: var(--text-secondary);">Importar
+                                        respaldo</p>
+                                </div>
+                            </div>
+                            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                                Restaura tus datos desde un archivo JSON o TXT previamente exportado.
+                            </p>
+                            <input type="file" id="importFileInput" accept=".json, .txt" style="display: none;">
+                            <button class="btn-secondary" onclick="document.getElementById('importFileInput').click()"
+                                style="width: 100%;">
+                                <span class="material-icons">upload</span> Cargar Respaldo
+                            </button>
+                        </div>
+
+                        <!-- Reset Card -->
+                        <div class="glass-panel" style="padding: 1.5rem;">
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                                <span class="material-icons"
+                                    style="font-size: 36px; color: var(--danger-color);">delete_forever</span>
+                                <div>
+                                    <h4 style="margin: 0; font-size: 1.1rem;">Restablecer</h4>
+                                    <p style="margin: 0; font-size: 0.8rem; color: var(--text-secondary);">Borrar datos
+                                        locales</p>
+                                </div>
+                            </div>
+                            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                                Elimina permanentemente todo el historial y configuraciones.
+                            </p>
+                            <button class="btn-danger" onclick="window.SettingsModule.clearAllData()"
+                                style="width: 100%;">
+                                <span class="material-icons">warning</span> Borrar Todo
+                            </button>
+                        </div>
+
+                    </div>
+                </section>
+
+                </section>
+            </div>
+        </main>
+    </div>
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <div style="margin-bottom: 1rem;">
+                <span class="material-icons" id="confirmIcon"
+                    style="font-size: 48px; color: var(--text-primary);">help</span>
+            </div>
+            <h2 id="confirmTitle" style="margin-bottom: 0.5rem;">Confirmación</h2>
+            <p id="confirmMessage" style="color: var(--text-secondary); margin-bottom: 1.5rem;">¿Estás seguro?</p>
+
+            <div class="modal-actions" style="justify-content: center; gap: 1rem;">
+                <button class="btn-secondary" onclick="window.closeModal('confirmModal')">
+                    Cancelar
+                </button>
+                <button id="confirmActionBtn" class="btn-primary">
+                    Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message Modal (Generic Success/Info) -->
+    <div id="messageModal" class="modal">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <div style="margin-bottom: 1rem;">
+                <span class="material-icons" id="messageIcon"
+                    style="font-size: 48px; color: var(--success-color);">check_circle</span>
+            </div>
+            <h2 id="messageTitle" style="margin-bottom: 0.5rem;">Éxito</h2>
+            <p id="messageBody" style="color: var(--text-secondary); margin-bottom: 1.5rem;">Operación completada.</p>
+
+            <div class="modal-actions" style="display: flex; justify-content: center;">
+                <button id="messageActionBtn" class="btn-primary" style="min-width: 100px;">
+                    Aceptar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/modules/auth.js"></script>
+    <script type="module" src="js/modules/ui.js"></script>
+    <script type="module" src="js/modules/settings.js"></script>
+    <script type="module" src="js/modules/chrono.js"></script>
+    <script type="module" src="js/modules/logger.js"></script>
+</body>
+
+</html>

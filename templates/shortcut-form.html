@@ -1,0 +1,127 @@
+<style>
+    .shortcut-form-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .form-grid-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .trigger-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+
+    .trigger-header label {
+        margin-bottom: 0 !important;
+    }
+
+    /* Unified Capture Area */
+    .keyboard-capture-area {
+        display: none;
+        align-items: center;
+        padding: 0 1rem;
+        height: 45px;
+        /* Same as .form-control */
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+
+    .keyboard-capture-area.active {
+        display: flex;
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 10px rgba(var(--accent-primary-rgb), 0.2);
+    }
+
+    .keys-visual-list {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        width: 100%;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 0.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--glass-border);
+    }
+</style>
+
+<form id="shortcutForm" onsubmit="window.ShortcutsModule.handleSave(event)" class="shortcut-form-container">
+    <input type="hidden" id="shortcutId">
+
+    <div class="form-grid-layout">
+        <div class="form-group">
+            <label>Nombre del Atajo</label>
+            <input type="text" id="shortcutName" class="form-control" required placeholder="Ej: Saludo Cliente">
+        </div>
+        <div class="form-group">
+            <label>Categoría</label>
+            <select id="shortcutCategory" class="form-control">
+                <option value="General">General</option>
+                <option value="Internet">Internet</option>
+                <option value="Televisión">Televisión</option>
+                <option value="Telefonía">Telefonía</option>
+                <option value="Mundo Go">Mundo Go</option>
+                <option value="Soporte">Soporte</option>
+                <option value="Transferencia">Transferencia</option>
+                <option value="Otros">Otros</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Unified Trigger Row -->
+    <div class="form-group">
+        <div class="trigger-header">
+            <label>Disparador / Comando</label>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 500;">MODO COMBO</span>
+                <label class="premium-switch">
+                    <input type="checkbox" id="shortcutTypeToggle"
+                        onchange="window.ShortcutsModule.toggleShortcutMode(this.checked)">
+                    <span class="premium-slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="trigger-input-wrapper">
+            <!-- Text Mode -->
+            <div id="textInputArea" class="text-input-area">
+                <input type="text" id="shortcutKey" class="form-control" placeholder="Ej: /saludo">
+            </div>
+
+            <!-- Combination Mode -->
+            <div id="keyboardCapture" class="keyboard-capture-area" style="display: none;">
+                <div id="keysVisualList" class="keys-visual-list">
+                    <span style="color: var(--text-secondary); font-size: 0.7rem;">PULSA UNA COMBINACIÓN...</span>
+                </div>
+                <input type="hidden" id="shortcutKeyHidden">
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Contenido de la Plantilla</label>
+        <textarea id="shortcutTemplate" class="form-control" required style="min-height: 100px; resize: vertical;"
+            placeholder="Escribe aquí el texto que se insertará..."></textarea>
+    </div>
+
+    <div class="form-actions">
+        <button type="button" class="btn-secondary" onclick="window.ShortcutsModule.closeModal()">Cancelar</button>
+        <button type="submit" class="btn-primary">
+            <span class="material-icons">save</span> Guardar Atajo
+        </button>
+    </div>
+</form>

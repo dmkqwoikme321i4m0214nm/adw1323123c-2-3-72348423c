@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <script>
+        (function () {
+            const theme = localStorage.getItem('selectedTheme');
+            const bgColors = {
+                'tema_mundo': '#0b3f4b',
+                'dark_blue': '#152533',
+                'modern_black': '#0f172a'
+            };
+            const bgColor = bgColors[theme] || bgColors['tema_mundo'];
+            document.documentElement.style.backgroundColor = bgColor;
+
+            if (theme && theme !== 'tema_mundo' && theme !== 'MUNDO') {
+                document.documentElement.setAttribute('data-theme', theme);
+            }
+
+            window.addEventListener('DOMContentLoaded', () => {
+                document.body.classList.remove('preload');
+            });
+        })();
+    </script>
+    <title>Gestor de Atajos | TypifyPro 3.0</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+
+    <!-- Fonts (Google Fonts) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- Unified Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .badge-category {
+            background: var(--accent-primary);
+            color: var(--button-text-color);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
+        .shortcut-key {
+            background: var(--bg-tertiary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            border: 1px solid var(--glass-border);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <nav class="sidebar glass-panel">
+            <div class="sidebar-header">
+                <img src="assets/logo.svg" alt="Logo" class="sidebar-logo">
+                <button class="sidebar-toggle" onclick="toggleSidebar()" title="Alternar menú lateral">
+                    <span class="material-icons">menu</span>
+                </button>
+            </div>
+            <script>
+                (function () {
+                    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true' || window.innerWidth <= 1024;
+                    if (isCollapsed) {
+                        const sidebar = document.currentScript.parentElement;
+                        sidebar.classList.add('collapsed');
+                        const icon = sidebar.querySelector('.sidebar-toggle .material-icons');
+                        if (icon) icon.textContent = 'chevron_right';
+                    }
+                })();
+            </script>
+            <ul class="nav-links">
+                <li>
+                    <a href="dashboard.html">
+                        <span class="material-icons">dashboard</span>
+                        <span class="nav-text">Generador</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="history.html">
+                        <span class="material-icons">history</span>
+                        <span class="nav-text">Historial</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="tools.html">
+                        <span class="material-icons">handyman</span>
+                        <span class="nav-text">Herramientas</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="settings.html">
+                        <span class="material-icons">settings</span>
+                        <span class="nav-text">Configuración</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="about.html">
+                        <span class="material-icons">info</span>
+                        <span class="nav-text">Acerca de</span>
+                    </a>
+                </li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <img src="assets/user.png" alt="User" class="user-avatar"
+                        style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
+                    <span id="userDisplay" class="nav-text">Usuario</span>
+                </div>
+                <button onclick="window.AuthModule.logout()" class="logout-btn-mini" title="Cerrar Sesión">
+                    <span class="material-icons">logout</span>
+                </button>
+            </div>
+        </nav>
+        <main class="main-content">
+            <header class="top-bar glass-panel">
+                <div class="top-left" style="display: flex; align-items: center; gap: 1rem;">
+                    <a href="tools.html" class="btn-secondary"
+                        style="display: flex; align-items: center; gap: 4px; padding: 6px 12px; border-radius: 8px;">
+                        <span class="material-icons">chevron_left</span> Volver
+                    </a>
+                    <h2 style="margin: 0;">Gestor de Atajos</h2>
+                </div>
+                <div class="top-right">
+                    <div class="header-action-item"
+                        style="display: flex; align-items: center; gap: 8px; margin-right: 1rem; padding-right: 1rem; border-right: 1px solid var(--glass-border);">
+                        <span style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">ESCUCHA
+                            ACTIVA</span>
+                        <label class="premium-switch">
+                            <input type="checkbox" id="globalShortcutsToggle" checked
+                                onchange="window.ShortcutsModule.toggleGlobalListening(this.checked)">
+                            <span class="premium-slider"></span>
+                        </label>
+                    </div>
+                    <div class="tmo-timer" id="headerTmoTimer" onclick="window.handleHeaderTimerClick()">
+                        <span class="material-icons">timer</span>
+                        <span id="tmoCounter">00:00</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="glass-panel full-height-panel"
+                    style="display: flex; flex-direction: column; padding: 2rem;">
+                    <div class="panel-header"
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; gap: 2rem;">
+                        <div class="search-box">
+                            <span class="material-icons">search</span>
+                            <input type="text" id="searchInput"
+                                placeholder="Buscar atajos por nombre, tecla o categoría..."
+                                onkeyup="window.ShortcutsModule.renderTable(this.value)">
+                        </div>
+                        <button class="btn-primary" onclick="window.ShortcutsModule.openModal()"
+                            style="white-space: nowrap; padding: 12px 24px;">
+                            <span class="material-icons">add</span> Nuevo Atajo
+                        </button>
+                    </div>
+
+                    <div class="premium-table-container">
+                        <table id="shortcutsTable" class="premium-table">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Categoría</th>
+                                    <th>Disparador</th>
+                                    <th>Vista Previa</th>
+                                    <th style="width: 100px;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Dynamic Content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Form (Loaded dynamically from templates/shortcut-form.html) -->
+    <div id="shortcutModal" class="modal" style="display: none; align-items: center; justify-content: center;">
+        <div class="glass-panel modal-content" style="width: 800px; max-width: 95%;" id="shortcutModalContainer">
+            <div class="modal-header">
+                <h3 id="modalTitle">Atajo</h3>
+                <button class="close-modal" onclick="window.ShortcutsModule.closeModal()"><span
+                        class="material-icons">close</span></button>
+            </div>
+            <div id="shortcutModalBody" class="modal-body">
+                <div class="flex-center" style="padding: 3rem; flex-direction: column; gap: 1rem;">
+                    <div class="loading-spinner"></div>
+                    <span>Cargando formulario...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="glass-panel modal-content"
+            style="max-width: 400px; text-align: center; border-radius: 12px; padding: 2rem;">
+            <div class="modal-header" style="border: none; padding-bottom: 0;">
+                <h3 style="width: 100%;">Confirmar Acción</h3>
+            </div>
+            <div class="modal-body" style="padding: 1.5rem 0;">
+                <p id="confirmMessage" style="color: var(--text-secondary); line-height: 1.5;"></p>
+            </div>
+            <div class="modal-footer" style="display: flex; gap: 12px; justify-content: center; padding-top: 1rem;">
+                <button id="confirmBtn" class="btn-primary"
+                    style="background: var(--danger-color); flex: 1; padding: 10px; border-radius: 8px;">Eliminar</button>
+                <button onclick="document.getElementById('confirmModal').style.display = 'none'" class="btn-secondary"
+                    style="flex: 1; padding: 10px; border-radius: 8px;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Modal -->
+    <div id="shortcutViewModal" class="modal">
+        <div class="glass-panel modal-content" style="width: 600px; max-width: 95%; border-radius: 16px;">
+            <div class="modal-header">
+                <h3 id="viewModalTitle">Detalle del Atajo</h3>
+                <button class="close-modal"
+                    onclick="document.getElementById('shortcutViewModal').style.display='none'"><span
+                        class="material-icons">close</span></button>
+            </div>
+            <div class="modal-body" style="padding: 2rem;">
+                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h4 id="viewShortcutName" style="margin: 0; color: white;"></h4>
+                        <span id="viewShortcutCategory" class="category-badge"></span>
+                    </div>
+                    <div
+                        style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px; border: 1px solid var(--glass-border);">
+                        <label
+                            style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase;">Disparador</label>
+                        <div id="viewShortcutKey" class="premium-kbd-container"></div>
+                    </div>
+                    <div>
+                        <label
+                            style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase;">Contenido
+                            de la Plantilla</label>
+                        <div id="viewShortcutTemplate"
+                            style="background: rgba(0,0,0,0.25); padding: 1.5rem; border-radius: 10px; border: 1px solid var(--glass-border); font-family: monospace; white-space: pre-wrap; color: #e5e7eb; max-height: 300px; overflow-y: auto;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer"
+                style="padding: 1.5rem; display: flex; justify-content: flex-end; gap: 1rem; border-top: 1px solid var(--glass-border);">
+                <button class="btn-secondary"
+                    onclick="document.getElementById('shortcutViewModal').style.display='none'">Cerrar</button>
+                <button id="viewEditBtn" class="btn-primary">Editar</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/modules/auth.js"></script>
+    <script type="module" src="js/modules/ui.js"></script>
+    <script type="module" src="js/modules/chrono.js"></script>
+    <script type="module" src="js/modules/shortcuts.js"></script>
+    <script type="module" src="js/modules/logger.js"></script>
+</body>
+
+</html>

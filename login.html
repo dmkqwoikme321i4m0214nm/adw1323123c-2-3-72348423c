@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Theme Initialization -->
+    <script>
+        (function () {
+            const themes = {
+                tema_mundo: {
+                    "--bg-primary": "#0b3f4bff",
+                    "--bg-secondary": "#0b3f4bff",
+                    "--bg-tertiary": "#a19f0eff",
+                    "--text-primary": "#ffffffff",
+                    "--text-secondary": "#ffffffff",
+                    "--accent-primary": "#a19f0eff",
+                    "--accent-hover": "#ffa000",
+                    "--danger-color": "#ef4444",
+                    "--success-color": "#22c55e",
+                    "--icon-color": "#ffffffff",
+                    "--button-text-color": "#ffffffff",
+                    "--button-bg-color": "#ffda00",
+                    "--speedtest-url-color": "#ffffffff",
+                    "--logo-color": "#ffffffff",
+                    "--input-bg": "#f8feffff",
+                    "--input-border": "#ffffffff",
+                    "--input-text": "#000000ff",
+                    "--input-focus-border": "#ffffffff",
+                    "--input-focus-shadow": "rgba(255, 255, 255, 0.4)",
+                    "--input-focus-bg": "#a19f0eff",
+                    "--input-label-color": "#ffffffff",
+                },
+                dark_blue: {
+                    "--bg-primary": "#152533",
+                    "--bg-secondary": "#2a3b4c",
+                    "--bg-tertiary": "#405166",
+                    "--text-primary": "#e2e8f0",
+                    "--text-secondary": "#94a3b8",
+                    "--accent-primary": "#3b82f6",
+                    "--accent-hover": "#2563eb",
+                    "--danger-color": "#ef4444",
+                    "--success-color": "#22c55e",
+                    "--icon-color": "#e2e8f0",
+                    "--button-text-color": "#e2e8f0",
+                    "--button-bg-color": "#3b82f6",
+                    "--speedtest-url-color": "#3b82f6",
+                    "--logo-color": "#e2e8f0",
+                    "--input-bg": "#1e293b",
+                    "--input-border": "#3b82f6",
+                    "--input-text": "#e2e8f0",
+                    "--input-focus-border": "#3b82f6",
+                    "--input-focus-shadow": "rgba(59, 130, 246, 0.4)",
+                    "--input-focus-bg": "#405166",
+                    "--input-label-color": "#94a3b8",
+                },
+                modern_black: {
+                    "--bg-primary": "#000000",
+                    "--bg-secondary": "#1a1a1a",
+                    "--bg-tertiary": "#2d2d2d",
+                    "--text-primary": "#ffffff",
+                    "--text-secondary": "#b0b0b0",
+                    "--accent-primary": "#ffffff",
+                    "--accent-hover": "#e0e0e0",
+                    "--danger-color": "#ff4444",
+                    "--success-color": "#4ade80",
+                    "--icon-color": "#ffffff",
+                    "--button-text-color": "#000000",
+                    "--button-bg-color": "#ffffff",
+                    "--speedtest-url-color": "#ffffff",
+                    "--logo-color": "#ffffff",
+                    "--input-bg": "#1a1a1a",
+                    "--input-border": "#404040",
+                    "--input-text": "#ffffff",
+                    "--input-focus-border": "#ffffff",
+                    "--input-focus-shadow": "rgba(255, 255, 255, 0.3)",
+                    "--input-focus-bg": "#242424",
+                    "--input-label-color": "#b0b0b0",
+                },
+            };
+            const defaultThemeName = localStorage.getItem("selectedTheme") || "tema_mundo";
+            const theme = themes[defaultThemeName];
+            if (theme) {
+                for (const [key, value] of Object.entries(theme)) {
+                    document.documentElement.style.setProperty(key, value);
+                }
+            }
+        })();
+    </script>
+    <title>Iniciar Sesión | TypifyPro 3.0</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/login.css">
+
+</head>
+
+<body>
+    <div class="login-modal" style="display: flex;">
+        <div class="login-content">
+            <div class="logo-container" id="loginLogo">
+                <img src="assets/logo.svg" alt="Logo de Inicio de Sesión">
+            </div>
+            <h2>Iniciar Sesión</h2>
+            <p>
+                Ingrese su tipo y número de documento para acceder al sistema.
+            </p>
+            <p class="login-subtitle">
+                Este dato se solicita para la función de envío de sondeo.
+            </p>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="documentType">Tipo de Documento:</label>
+                    <select id="documentType" name="documentType" required>
+                        <option value="">Seleccione</option>
+                        <option value="Cédula">Cédula</option>
+                        <option value="Pasaporte">Pasaporte</option>
+                    </select>
+                </div>
+                <div class="form-group password-container">
+                    <label for="documentNumber">Número de Documento:</label>
+                    <input type="password" id="documentNumber" name="documentNumber"
+                        placeholder="Ingrese su número de documento" maxlength="20" required />
+                    <span class="material-icons toggle-password">visibility</span>
+                </div>
+                <div id="loginMessage" class="login-message error"></div>
+                <button type="submit">Ingresar</button>
+            </form>
+            <div style="display: flex; align-items: center; justify-content: center; margin-top: 20px;">
+                <img id="mundo-logo" src="assets/mundo.svg" alt="Logo Mundo"
+                    style="max-width: 100px; height: auto; margin-right: 5px;">
+                <span style="font-size: 24px; font-weight: bold; margin-right: 5px;">X</span>
+                <img id="konecta-logo" src="assets/konecta.svg" alt="Logo Konecta"
+                    style="max-width: 100px; height: auto;">
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/login.js"></script>
+</body>
+
+</html>

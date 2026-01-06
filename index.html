@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Early Theme Init -->
+    <!-- Early Theme Init -->
+    <script>
+        (function () {
+            // Retrieve theme, handling legacy keys
+            let theme = localStorage.getItem('selectedTheme') || 'tema_mundo';
+            if (theme === 'MUNDO') theme = 'tema_mundo';
+            if (theme === 'DARK') theme = 'dark_blue';
+
+            const bgColors = {
+                'tema_mundo': '#0b3f4b',
+                'dark_blue': '#152533',
+                'modern_black': '#0f172a'
+            };
+            const bgColor = bgColors[theme] || '#0b3f4b';
+
+            // 1. Set HTML background immediately (inline)
+            document.documentElement.style.backgroundColor = bgColor;
+
+            // 2. Inject Critical CSS for Body to prevent white flash
+            // This runs before external CSS loads
+            const style = document.createElement('style');
+            style.innerHTML = `html, body { background-color: ${bgColor}; }`;
+            document.head.appendChild(style);
+
+            // 3. Set Theme Attribute
+            if (theme !== 'tema_mundo') {
+                document.documentElement.setAttribute('data-theme', theme);
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+
+            // 4. Clean up transition blocker
+            window.addEventListener('DOMContentLoaded', () => {
+                // Small delay to ensure paint has stabilized
+                requestAnimationFrame(() => {
+                    document.body.classList.remove('preload');
+                });
+            });
+        })();
+    </script>
+    <title>Login | TypifyPro 4.0.0</title>
+    <!-- Use local favicon if available, otherwise generic -->
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+
+    <!-- Fonts (Google Fonts) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- Unified Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+
+
+</head>
+
+<body class="preload">
+    <div class="login-modal">
+        <div class="login-content">
+            <div class="logo-container" id="loginLogo">
+                <img src="assets/logo.svg" alt="Logo de Inicio de Sesión" style="max-width: 180px; height: auto;">
+            </div>
+            <h2>Iniciar Sesión</h2>
+            <p>
+                Ingrese su tipo y número de documento para acceder al sistema.
+            </p>
+            <p class="login-subtitle">
+                Este dato se solicita para la función de envío de sondeo.
+            </p>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="documentType">Tipo de Documento:</label>
+                    <select id="documentType" name="documentType" required>
+                        <option value="">Seleccione</option>
+                        <option value="Cédula">Cédula</option>
+                        <option value="Pasaporte">Pasaporte</option>
+                    </select>
+                </div>
+                <div class="form-group password-container">
+                    <label for="documentNumber">Número de Documento:</label>
+                    <input type="password" id="documentNumber" name="documentNumber"
+                        placeholder="Ingrese su número de documento" maxlength="20" required />
+                    <span class="material-icons toggle-password"
+                        onclick="window.AuthModule.togglePasswordVisibility()">visibility</span>
+                </div>
+                <div id="loginMessage" class="login-message error" style="display: none;"></div>
+                <button type="submit">Ingresar</button>
+            </form>
+            <div style="display: flex; align-items: center; justify-content: center; margin-top: 20px;">
+                <img id="mundo-logo" src="assets/mundo.svg" alt="Logo Mundo"
+                    style="max-width: 100px; height: auto; margin-right: 5px;">
+                <span style="font-size: 24px; font-weight: bold; margin-right: 5px;">X</span>
+                <img id="konecta-logo" src="assets/konecta.svg" alt="Logo Konecta"
+                    style="max-width: 100px; height: auto;">
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/modules/auth.js"></script>
+</body>
+
+</html>

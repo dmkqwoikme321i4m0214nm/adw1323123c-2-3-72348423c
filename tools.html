@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <!-- Early Theme Init -->
+    <script>
+        (function () {
+            // Retrieve theme, handling legacy keys
+            let theme = localStorage.getItem('selectedTheme') || 'tema_mundo';
+            if (theme === 'MUNDO') theme = 'tema_mundo';
+            if (theme === 'DARK') theme = 'dark_blue';
+
+            const bgColors = {
+                'tema_mundo': '#0b3f4b',
+                'dark_blue': '#152533',
+                'modern_black': '#0f172a'
+            };
+            const bgColor = bgColors[theme] || '#0b3f4b';
+
+            // 1. Set HTML background immediately (inline)
+            document.documentElement.style.backgroundColor = bgColor;
+
+            // 2. Inject Critical CSS for Body to prevent white flash
+            // This runs before external CSS loads
+            const style = document.createElement('style');
+            style.innerHTML = `html, body { background-color: ${bgColor}; }`;
+            document.head.appendChild(style);
+
+            // 3. Set Theme Attribute
+            if (theme !== 'tema_mundo') {
+                document.documentElement.setAttribute('data-theme', theme);
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+
+            // 4. Clean up transition blocker
+            window.addEventListener('DOMContentLoaded', () => {
+                // Small delay to ensure paint has stabilized
+                requestAnimationFrame(() => {
+                    document.body.classList.remove('preload');
+                });
+            });
+        })();
+    </script>
+    <title>Herramientas | TypifyPro 4.0.0</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+
+    <!-- Fonts (Google Fonts) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- Unified Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <style>
+        /* Enhanced Search Input */
+        #toolSearch:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        /* Tool Card Hover Effects */
+        .tool-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .tool-card:hover::before {
+            opacity: 1;
+        }
+
+        .tool-card:active {
+            transform: translateY(-4px);
+        }
+
+        /* Fade In Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Search Stats Animation */
+        #searchStats {
+            animation: fadeIn 0.3s ease;
+        }
+    </style>
+</head>
+
+<body class="preload">
+    <div class="dashboard-layout">
+        <nav class="sidebar glass-panel">
+            <div class="sidebar-header">
+                <img src="assets/logo.svg" alt="Logo" class="sidebar-logo">
+                <button class="sidebar-toggle" onclick="toggleSidebar()" title="Alternar menú lateral">
+                    <span class="material-icons">menu</span>
+                </button>
+            </div>
+            <script>
+                (function () {
+                    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true' || window.innerWidth <= 1024;
+                    if (isCollapsed) {
+                        const sidebar = document.currentScript.parentElement;
+                        sidebar.classList.add('collapsed');
+                        const icon = sidebar.querySelector('.sidebar-toggle .material-icons');
+                        if (icon) icon.textContent = 'chevron_right';
+                    }
+                })();
+            </script>
+            <ul class="nav-links">
+                <li>
+                    <a href="dashboard.html">
+                        <span class="material-icons">dashboard</span>
+                        <span class="nav-text">Generador</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="history.html">
+                        <span class="material-icons">history</span>
+                        <span class="nav-text">Historial</span>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="tools.html">
+                        <span class="material-icons">handyman</span>
+                        <span class="nav-text">Herramientas</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="settings.html">
+                        <span class="material-icons">settings</span>
+                        <span class="nav-text">Configuración</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="about.html">
+                        <span class="material-icons">info</span>
+                        <span class="nav-text">Acerca de</span>
+                    </a>
+                </li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <img src="assets/user.png" alt="User" class="user-avatar"
+                        style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
+                    <span id="userDisplay" class="nav-text">Usuario</span>
+                </div>
+                <button onclick="window.AuthModule.logout()" class="logout-btn-mini" title="Cerrar Sesión">
+                    <span class="material-icons">logout</span>
+                </button>
+            </div>
+        </nav>
+        <main class="main-content">
+            <header class="top-bar glass-panel">
+                <div class="top-left">
+                    <h2>Herramientas</h2>
+                </div>
+                <div class="top-right">
+                    <div class="tmo-timer" id="headerTmoTimer" onclick="window.handleHeaderTimerClick()"
+                        title="Ir al Gestor TMO">
+                        <span class="material-icons">timer</span>
+                        <span id="tmoCounter">00:00</span>
+                    </div>
+                </div>
+            </header>
+            <div style="flex: 1; overflow-y: auto; padding: 1.5rem;">
+                <!-- Enhanced Search Section -->
+                <div
+                    style="background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem;">
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.8rem;">
+                        <span class="material-icons"
+                            style="color: var(--accent-primary); font-size: 28px;">search</span>
+                        <h3 style="margin: 0; color: var(--text-primary); font-size: 1.1rem;">Buscar Herramientas</h3>
+                    </div>
+                    <div class="search-box" style="position: relative;">
+                        <span class="material-icons"
+                            style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); font-size: 20px;">search</span>
+                        <input type="text" id="toolSearch" placeholder="Buscar por nombre o descripción..."
+                            onkeyup="filterTools()"
+                            style="width: 100%; padding: 14px 14px 14px 50px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); border-radius: 12px; color: white; font-size: 0.95rem; transition: all 0.3s ease;">
+                    </div>
+                    <div id="searchStats"
+                        style="margin-top: 0.8rem; font-size: 0.85rem; color: var(--text-secondary); display: none;">
+                        <span class="material-icons" style="font-size: 14px; vertical-align: middle;">info</span>
+                        <span id="searchStatsText"></span>
+                    </div>
+                </div>
+
+                <h3
+                    style="margin-bottom: 1.5rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+                    <span class="material-icons" style="color: var(--accent-primary);">apps</span>
+                    Módulos Disponibles
+                </h3>
+
+                <div id="toolsGrid"
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+
+                    <!-- Speedtest Card -->
+                    <div class="glass-panel tool-card"
+                        style="padding: 1.5rem; cursor: pointer; transition: transform 0.2s;"
+                        onclick="openSpeedtestModal()">
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                            <span class="material-icons"
+                                style="font-size: 48px; color: var(--accent-primary);">speed</span>
+                            <div>
+                                <h4 style="margin: 0; font-size: 1.2rem;">Speedtest</h4>
+                                <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">Generador de
+                                    URLs</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.9rem; color: var(--text-secondary);">Genera enlaces de resultados de
+                            Speedtest a partir del ID de prueba.</p>
+                    </div>
+
+                    <!-- TMO Card -->
+                    <div class="glass-panel tool-card"
+                        style="padding: 1.5rem; cursor: pointer; transition: transform 0.2s;" onclick="openTmoModal()">
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                            <span class="material-icons"
+                                style="font-size: 48px; color: var(--success-color);">timer</span>
+                            <div>
+                                <h4 style="margin: 0; font-size: 1.2rem;">TMO Manager</h4>
+                                <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">Gestión de
+                                    tiempos</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.9rem; color: var(--text-secondary);">Administra y visualiza los tiempos
+                            medios de operación (TMO).</p>
+                    </div>
+
+                    <!-- Chronometer Card -->
+                    <div class="glass-panel tool-card"
+                        style="padding: 1.5rem; cursor: pointer; transition: transform 0.2s;" onclick="openChronoPip()">
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                            <span class="material-icons" style="font-size: 48px; color: #3b82f6;">schedule</span>
+                            <div>
+                                <h4 style="margin: 0; font-size: 1.2rem;">Cronómetro</h4>
+                                <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">
+                                    Picture-in-Picture</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.9rem; color: var(--text-secondary);">Abre el cronómetro flotante con
+                            temporizadores personalizables.</p>
+                    </div>
+
+                    <!-- Shortcuts Card -->
+                    <div class="glass-panel tool-card"
+                        style="padding: 1.5rem; cursor: pointer; transition: transform 0.2s;"
+                        onclick="window.location.href='shortcuts.html'">
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                            <span class="material-icons" style="font-size: 48px; color: #f97316;">label</span>
+                            <div>
+                                <h4 style="margin: 0; font-size: 1.2rem;">Gestor de Atajos</h4>
+                                <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">Plantillas
+                                    Mágicas</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.9rem; color: var(--text-secondary);">Configura plantillas rápidas y
+                            atajos de teclado.</p>
+                    </div>
+
+                    <!-- Logger Card -->
+                    <div class="glass-panel tool-card"
+                        style="padding: 1.5rem; cursor: pointer; transition: transform 0.2s;"
+                        onclick="window.location.href='logs.html'">
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                            <span class="material-icons" style="font-size: 48px; color: #ef4444;">terminal</span>
+                            <div>
+                                <h4 style="margin: 0; font-size: 1.2rem;">Visor de Logs</h4>
+                                <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">Monitor del
+                                    sistema</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.9rem; color: var(--text-secondary);">Monitor de errores y actividad del
+                            sistema.</p>
+                    </div>
+
+                    <!-- HDMI Assistant Card -->
+                    <div class="glass-panel tool-card"
+                        style="padding: 1.5rem; cursor: pointer; transition: transform 0.2s;"
+                        onclick="window.location.href='hdmi_assistant.html'">
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                            <span class="material-icons" style="font-size: 48px; color: #8b5cf6;">tv</span>
+                            <div>
+                                <h4 style="margin: 0; font-size: 1.2rem;">Asistente HDMI</h4>
+                                <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">Configuración de
+                                    TV</p>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.9rem; color: var(--text-secondary);">Guía paso a paso para configurar
+                            HDMI
+                            en varias marcas.</p>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Speedtest Modal -->
+            <div id="speedtestModal" class="modal">
+                <div class="modal-content" style="max-width: 500px; width: 90%;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="material-icons" style="color: var(--accent-primary);">speed</span>
+                            <h3 style="margin: 0;">Generador Speedtest</h3>
+                        </div>
+                        <button onclick="closeModal('speedtestModal')"
+                            style="background: none; border: none; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px; border-radius: 4px; transition: background 0.2s;">
+                            <span class="material-icons">close</span>
+                        </button>
+                    </div>
+
+                    <div style="margin-bottom: 1.5rem;">
+                        <label
+                            style="display: block; margin-bottom: 0.8rem; color: var(--text-secondary); font-size: 0.9rem;">ID
+                            de Test / Resultado</label>
+                        <div class="search-box">
+                            <span class="material-icons">tag</span>
+                            <input type="text" id="speedtestId" placeholder="Ej: 123456789" style="padding: 12px;">
+                        </div>
+                        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 8px; margin-left: 4px;">
+                            Ingresa el ID numérico de la prueba de velocidad.
+                        </p>
+                    </div>
+
+                    <button onclick="generateSpeedtestUrl()" class="btn-primary"
+                        style="width: 100%; margin-bottom: 1.5rem; padding: 12px; font-weight: 600;">
+                        <span class="material-icons" style="margin-right: 8px;">link</span> Generar Enlace
+                    </button>
+
+                    <div id="speedtestResult" class="glass-panel"
+                        style="display: none; padding: 1rem; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border);">
+                        <p
+                            style="margin: 0 0 0.8rem 0; font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">
+                            ENLACE GENERADO:</p>
+
+                        <div
+                            style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; margin-bottom: 1rem; word-break: break-all; font-family: monospace; color: var(--accent-primary); border: 1px dashed var(--glass-border);">
+                            <a id="speedtestLink" href="#" target="_blank"
+                                style="text-decoration: none; color: inherit;"></a>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <button onclick="copySpeedtestUrl()" class="btn-secondary" style="justify-content: center;">
+                                <span class="material-icons">content_copy</span> Copiar
+                            </button>
+                            <button onclick="window.open(document.getElementById('speedtestLink').href, '_blank')"
+                                class="btn-primary" style="justify-content: center;">
+                                <span class="material-icons">open_in_new</span> Abrir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script type="module" src="js/modules/auth.js"></script>
+    <script type="module" src="js/modules/ui.js"></script>
+    <script type="module" src="js/modules/tools.js"></script>
+    <script type="module" src="js/modules/chrono.js"></script>
+    <script type="module" src="js/modules/logger.js"></script>
+</body>
+
+</html>

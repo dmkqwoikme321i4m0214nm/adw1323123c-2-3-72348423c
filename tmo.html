@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <!-- Early Theme Init -->
+    <script>
+        (function () {
+            const theme = localStorage.getItem('selectedTheme');
+            const bgColors = {
+                'tema_mundo': '#0b3f4b',
+                'dark_blue': '#152533',
+                'modern_black': '#0f172a'
+            };
+            const bgColor = bgColors[theme] || bgColors['tema_mundo'];
+            document.documentElement.style.backgroundColor = bgColor;
+
+            if (theme && theme !== 'tema_mundo' && theme !== 'MUNDO') {
+                document.documentElement.setAttribute('data-theme', theme);
+            }
+
+            window.addEventListener('DOMContentLoaded', () => {
+                document.body.classList.remove('preload');
+            });
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor TMO | TypifyPro 4.0.0</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/styles.css">
+
+</head>
+
+<body class="preload">
+    <div class="dashboard-layout">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar glass-panel">
+            <div class="sidebar-header">
+                <img src="assets/logo.svg" alt="Logo" class="sidebar-logo">
+                <button class="sidebar-toggle" onclick="toggleSidebar()" title="Alternar menú lateral">
+                    <span class="material-icons">menu</span>
+                </button>
+            </div>
+            <script>
+                (function () {
+                    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true' || window.innerWidth <= 1024;
+                    if (isCollapsed) {
+                        const sidebar = document.currentScript.parentElement;
+                        sidebar.classList.add('collapsed');
+                        const icon = sidebar.querySelector('.sidebar-toggle .material-icons');
+                        if (icon) icon.textContent = 'chevron_right';
+                    }
+                })();
+            </script>
+
+            <ul class="nav-links">
+                <li>
+                    <a href="dashboard.html">
+                        <span class="material-icons">dashboard</span>
+                        <span class="nav-text">Generador</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="history.html">
+                        <span class="material-icons">history</span>
+                        <span class="nav-text">Historial</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="tools.html">
+                        <span class="material-icons">handyman</span>
+                        <span class="nav-text">Herramientas</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="settings.html">
+                        <span class="material-icons">settings</span>
+                        <span class="nav-text">Configuración</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="about.html">
+                        <span class="material-icons">info</span>
+                        <span class="nav-text">Acerca de</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <img src="assets/user.png" alt="User" class="user-avatar"
+                        style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
+                    <span id="userDisplay" class="nav-text">Usuario</span>
+                </div>
+                <button onclick="window.AuthModule.logout()" class="logout-btn-mini" title="Cerrar Sesión">
+                    <span class="material-icons">logout</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content" style="overflow-y: auto;">
+            <!-- Top Bar -->
+            <header class="top-bar glass-panel">
+                <div class="top-left" style="display: flex; align-items: center; gap: 1rem;">
+                    <button onclick="window.location.href='tools.html'" class="btn-secondary"
+                        style="padding: 8px 12px;">
+                        <span class="material-icons">arrow_back</span> Regresar
+                    </button>
+                    <h2>Gestor de TMO</h2>
+                </div>
+                <div class="top-right">
+                    <div class="tmo-timer" id="headerTmoTimer" onclick="window.handleHeaderTimerClick()"
+                        title="Ir al Gestor TMO">
+                        <span class="material-icons">timer</span>
+                        <span id="tmoCounter">00:00</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- TMO Content -->
+            <div class="workspace-grid"
+                style="grid-template-columns: 1fr 1fr; gap: 1.5rem; padding: 1.5rem; overflow: visible; height: auto; flex: none;">
+
+                <!-- Input Panel -->
+                <div class="glass-panel" style="padding: 2rem;">
+                    <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <span class="material-icons" style="color: var(--accent-primary);">add_circle</span>
+                        Registrar Llamada
+                    </h3>
+
+                    <form id="dataFormTMO" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                        <div>
+                            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary);">
+                                Tiempo de Llamada (segundos):
+                            </label>
+                            <input type="number" id="callTime" required min="0" step="1" placeholder="Ej: 180"
+                                style="width: 100%; padding: 10px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 8px; color: white; font-size: 1rem;">
+                        </div>
+
+                        <div>
+                            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary);">
+                                Tipo de Falla / Categoría:
+                            </label>
+                            <select id="failureType" required
+                                style="width: 100%; padding: 10px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 8px; color: white; font-size: 1rem; appearance: none;">
+                                <option value="" disabled selected>Seleccione una categoría</option>
+                                <option value="Internet">Internet</option>
+                                <option value="TVHD">TVHD</option>
+                                <option value="VOIP">VOIP</option>
+                                <option value="MUNDOGO">MUNDOGO</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn-primary" style="width: 100%; padding: 12px;">
+                            <span class="material-icons">add</span> Agregar Registro
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Statistics Panel -->
+                <div class="glass-panel" style="padding: 2rem;">
+                    <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <span class="material-icons" style="color: var(--success-color);">analytics</span>
+                        Estadísticas
+                    </h3>
+
+                    <div class="stat-card" style="margin-bottom: 1.5rem; padding: 1.5rem;">
+                        <div class="stat-label">Promedio TMO</div>
+                        <div class="stat-value" id="avgTime" style="font-size: 3rem;">0</div>
+                        <div class="stat-count">segundos</div>
+                    </div>
+
+                    <div>
+                        <h4 style="margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-secondary);">Conteo por
+                            Tipo</h4>
+                        <div id="failureCounts"
+                            style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.9rem; max-height: 200px; overflow-y: auto; padding-right: 8px;">
+                            <!-- Counts will be populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Table (Full Width) -->
+                <div class="glass-panel" style="grid-column: 1 / -1; padding: 2rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h3 style="display: flex; align-items: center; gap: 0.5rem; margin: 0;">
+                            <span class="material-icons" style="color: var(--accent-hover);">list</span>
+                            Registro de Llamadas
+                        </h3>
+
+                        <button id="clearAllBtn" class="btn-danger">
+                            <span class="material-icons">delete_sweep</span> Limpiar Todo
+                        </button>
+                    </div>
+
+                    <div
+                        style="overflow-x: auto; max-height: 400px; overflow-y: auto; border: 1px solid var(--glass-border); border-radius: 8px;">
+                        <table id="dataTable" style="width: 100%; border-collapse: collapse;">
+                            <thead style="background: rgba(0,0,0,0.3);">
+                                <tr>
+                                    <th
+                                        style="padding: 12px; text-align: left; border-bottom: 2px solid var(--glass-border);">
+                                        Tiempo (seg)</th>
+                                    <th
+                                        style="padding: 12px; text-align: left; border-bottom: 2px solid var(--glass-border);">
+                                        Tipo de Falla</th>
+                                    <th
+                                        style="padding: 12px; text-align: center; border-bottom: 2px solid var(--glass-border); width: 100px;">
+                                        Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Rows will be populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="tmoConfirmationModal" class="modal" style="display: none;">
+        <div class="glass-panel" style="max-width: 400px; padding: 2rem;">
+            <h3 style="margin-bottom: 1rem;">Confirmar Acción</h3>
+            <p id="tmoConfirmationMessage" style="margin-bottom: 1.5rem; color: var(--text-secondary);"></p>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                <button onclick="closeTmoConfirmation()" class="btn-secondary">
+                    Cancelar
+                </button>
+                <button id="tmoConfirmDeleteBtn" class="btn-danger">
+                    Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modules -->
+    <script type="module" src="js/modules/auth.js"></script>
+    <script type="module" src="js/modules/ui.js"></script>
+    <script type="module" src="js/modules/chrono.js"></script>
+    <script type="module" src="js/modules/logger.js"></script>
+    <script type="module">
+        // TMO Manager - Based on original project
+        let callData = [];
+        let dataTableBody;
+        let avgTimeDisplay;
+
+        function initializeTmo() {
+            const dataFormTMO = document.getElementById('dataFormTMO');
+            dataTableBody = document.getElementById('dataTable').getElementsByTagName('tbody')[0];
+            avgTimeDisplay = document.getElementById('avgTime');
+            const clearAllBtn = document.getElementById('clearAllBtn');
+
+            dataFormTMO.onsubmit = function (event) {
+                event.preventDefault();
+                const callTime = parseFloat(document.getElementById('callTime').value);
+                const failureType = document.getElementById('failureType').value;
+
+                if (isNaN(callTime) || failureType.trim() === '') return;
+
+                const callEntry = { callTime, failureType, id: Date.now() };
+                callData.push(callEntry);
+                addRowToTable(callEntry);
+                updateAverage();
+                localStorage.setItem('callData', JSON.stringify(callData));
+                dataFormTMO.reset();
+                document.getElementById('callTime').focus();
+            };
+
+            clearAllBtn.onclick = function () {
+                showConfirmation(
+                    '¿Está seguro de que desea eliminar todos los registros?',
+                    () => {
+                        localStorage.removeItem('callData');
+                        dataTableBody.innerHTML = '';
+                        callData = [];
+                        updateAverage();
+                        closeTmoConfirmation();
+                    }
+                );
+            };
+
+            loadTmoData();
+        }
+
+        function loadTmoData() {
+            const savedData = localStorage.getItem('callData');
+            if (savedData) {
+                callData = JSON.parse(savedData);
+                dataTableBody.innerHTML = '';
+                callData.forEach(entry => addRowToTable(entry));
+                updateAverage();
+            }
+        }
+
+        function addRowToTable(callEntry) {
+            let row = dataTableBody.insertRow();
+            row.style.borderBottom = '1px solid var(--glass-border)';
+
+            let timeCell = row.insertCell(0);
+            timeCell.textContent = callEntry.callTime;
+            timeCell.style.padding = '12px';
+
+            let typeCell = row.insertCell(1);
+            typeCell.textContent = callEntry.failureType;
+            typeCell.style.padding = '12px';
+
+            let actionsCell = row.insertCell(2);
+            actionsCell.style.padding = '12px';
+            actionsCell.style.textAlign = 'center';
+
+            let deleteBtn = document.createElement('button');
+            deleteBtn.className = 'btn-danger';
+            deleteBtn.style.padding = '6px 12px';
+            deleteBtn.innerHTML = '<span class="material-icons" style="font-size:18px;">delete</span>';
+            deleteBtn.onclick = () => deleteRow(callEntry.id, row);
+            actionsCell.appendChild(deleteBtn);
+        }
+
+        function deleteRow(id, row) {
+            showConfirmation(
+                '¿Está seguro de que desea eliminar este registro?',
+                () => {
+                    callData = callData.filter(item => item.id !== id);
+                    localStorage.setItem('callData', JSON.stringify(callData));
+                    row.remove();
+                    updateAverage();
+                    closeTmoConfirmation();
+                }
+            );
+        }
+
+        function updateAverage() {
+            const failureCounts = document.getElementById('failureCounts');
+
+            if (callData.length === 0) {
+                avgTimeDisplay.textContent = '0';
+                failureCounts.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No hay registros</p>';
+                return;
+            }
+
+            const sum = callData.reduce((acc, curr) => acc + curr.callTime, 0);
+            const average = sum / callData.length;
+            avgTimeDisplay.textContent = average.toFixed(2);
+
+            const counts = callData.reduce((acc, curr) => {
+                acc[curr.failureType] = (acc[curr.failureType] || 0) + 1;
+                return acc;
+            }, {});
+
+            const totalCalls = callData.length;
+
+            let countsHtml = Object.entries(counts)
+                .map(([type, count]) => `
+                    <div style="display: flex; justify-content: space-between; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 6px;">
+                        <span>${type}</span>
+                        <span style="font-weight: 600; color: var(--accent-primary);">${count}</span>
+                    </div>
+                `)
+                .join('');
+
+            countsHtml += `
+                <div style="display: flex; justify-content: space-between; padding: 8px; background: rgba(0,0,0,0.3); border-radius: 6px; margin-top: 0.5rem; font-weight: 600;">
+                    <span>Total</span>
+                    <span style="color: var(--success-color);">${totalCalls}</span>
+                </div>
+            `;
+
+            failureCounts.innerHTML = countsHtml;
+        }
+
+        function showConfirmation(message, onConfirm) {
+            const modal = document.getElementById('tmoConfirmationModal');
+            const messageElement = document.getElementById('tmoConfirmationMessage');
+            const confirmBtn = document.getElementById('tmoConfirmDeleteBtn');
+
+            messageElement.textContent = message;
+            modal.style.display = 'flex';
+
+            const confirmHandler = () => {
+                onConfirm();
+                confirmBtn.removeEventListener('click', confirmHandler);
+            };
+
+            confirmBtn.addEventListener('click', confirmHandler);
+        }
+
+        window.closeTmoConfirmation = function () {
+            const modal = document.getElementById('tmoConfirmationModal');
+            modal.style.display = 'none';
+        };
+
+        // Initialize on load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeTmo);
+        } else {
+            initializeTmo();
+        }
+    </script>
+</body>
+
+</html>

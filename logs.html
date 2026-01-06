@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <!-- Early Theme Init -->
+    <script>
+        (function () {
+            const theme = localStorage.getItem('selectedTheme');
+            // Set background color based on theme to prevent white flash
+            const bgColors = {
+                'tema_mundo': '#0b3f4b',
+                'dark_blue': '#152533',
+                'modern_black': '#0f172a'
+            };
+            const bgColor = bgColors[theme] || bgColors['tema_mundo'];
+            document.documentElement.style.backgroundColor = bgColor;
+
+            // Apply theme attribute
+            if (theme && theme !== 'tema_mundo' && theme !== 'MUNDO') {
+                document.documentElement.setAttribute('data-theme', theme);
+            }
+
+            // Remove preload class after load
+            window.addEventListener('DOMContentLoaded', () => {
+                document.body.classList.remove('preload');
+            });
+        })();
+    </script>
+    <title>Visor de Logs | TypifyPro 3.0</title>
+    <link rel="stylesheet" href="css/styles.css">
+
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        .log-terminal {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Monaco', monospace;
+            padding: 1rem;
+            border-radius: 8px;
+            height: calc(100vh - 200px);
+            overflow-y: auto;
+            border: 1px solid #333;
+            font-size: 0.9rem;
+        }
+
+        .log-line {
+            margin-bottom: 4px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 2px;
+        }
+
+        .log-time {
+            color: #569cd6;
+        }
+
+        .log-type {
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .log-info .log-type {
+            color: #4ec9b0;
+        }
+
+        .log-warning .log-type {
+            color: #cca700;
+        }
+
+        .log-warning {
+            color: #fdfdad;
+        }
+
+        .log-error .log-type {
+            color: #f44336;
+        }
+
+        .log-error {
+            color: #ffb3b3;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body class="preload">
+    <div class="dashboard-layout">
+        <nav class="sidebar glass-panel">
+            <div class="sidebar-header">
+                <img src="assets/logo.svg" alt="Logo" class="sidebar-logo">
+                <button class="sidebar-toggle" onclick="toggleSidebar()" title="Alternar menú lateral">
+                    <span class="material-icons">menu</span>
+                </button>
+            </div>
+            <script>
+                (function () {
+                    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true' || window.innerWidth <= 1024;
+                    if (isCollapsed) {
+                        const sidebar = document.currentScript.parentElement;
+                        sidebar.classList.add('collapsed');
+                        const icon = sidebar.querySelector('.sidebar-toggle .material-icons');
+                        if (icon) icon.textContent = 'chevron_right';
+                    }
+                })();
+            </script>
+            <ul class="nav-links">
+                <li>
+                    <a href="dashboard.html">
+                        <span class="material-icons">dashboard</span>
+                        <span class="nav-text">Generador</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="history.html">
+                        <span class="material-icons">history</span>
+                        <span class="nav-text">Historial</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="tools.html">
+                        <span class="material-icons">handyman</span>
+                        <span class="nav-text">Herramientas</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="settings.html">
+                        <span class="material-icons">settings</span>
+                        <span class="nav-text">Configuración</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="about.html">
+                        <span class="material-icons">info</span>
+                        <span class="nav-text">Acerca de</span>
+                    </a>
+                </li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <img src="assets/user.png" alt="User" class="user-avatar"
+                        style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
+                    <span id="userDisplay" class="nav-text">Usuario</span>
+                </div>
+                <button onclick="window.AuthModule.logout()" class="logout-btn-mini" title="Cerrar Sesión">
+                    <span class="material-icons">logout</span>
+                </button>
+            </div>
+        </nav>
+        <main class="main-content">
+            <header class="top-bar glass-panel">
+                <div class="top-left">
+                    <h2>Visor de Logs del Sistema</h2>
+                </div>
+                <div class="top-right">
+                    <button class="theme-toggle" onclick="window.UIModule.toggleTheme()">
+                        <span class="material-icons">dark_mode</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-area">
+                <div class="glass-panel full-height-panel">
+                    <div class="toolbar">
+                        <button class="btn-secondary" onclick="window.location.href='tools.html'"
+                            style="display: flex; align-items: center; gap: 6px;">
+                            <span class="material-icons">arrow_back</span> Volver
+                        </button>
+                        <div style="width: 1px; height: 24px; background: var(--glass-border);"></div>
+                        <select id="logFilter" class="form-control" style="width: auto;" onchange="renderLogs()">
+                            <option value="all">Todos</option>
+                            <option value="info">Info</option>
+                            <option value="warning">Advertencias</option>
+                            <option value="error">Errores</option>
+                        </select>
+                        <button class="btn-secondary" onclick="renderLogs()">
+                            <span class="material-icons">refresh</span> Refrescar
+                        </button>
+                        <button class="btn-primary" onclick="window.LoggerModule.downloadLogs()">
+                            <span class="material-icons">download</span> Exportar Log
+                        </button>
+                        <button class="btn-danger" style="margin-left: auto;" onclick="window.LoggerModule.clearLogs()">
+                            <span class="material-icons">delete_sweep</span> Limpiar
+                        </button>
+                    </div>
+
+                    <div id="logContainer" class="log-terminal">
+                        <!-- Logs here -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="js/modules/auth.js"></script>
+    <script type="module" src="js/modules/ui.js"></script>
+    <script type="module" src="js/modules/logger.js"></script>
+    <script>
+        function renderLogs() {
+            const filter = document.getElementById('logFilter').value;
+            window.LoggerModule.renderLogs('logContainer', filter);
+        }
+
+        // Init logic needs to wait for module load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Polling for module availability if needed, but script type=module defers by default
+            setTimeout(renderLogs, 100);
+        });
+    </script>
+</body>
+
+</html>

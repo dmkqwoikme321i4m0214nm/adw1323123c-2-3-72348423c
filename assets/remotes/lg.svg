@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 340" class="remote-svg">
+  <defs>
+    <linearGradient id="glossBlack" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#333;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#111;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#000;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shine">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+      <feSpecularLighting surfaceScale="5" specularConstant="1" specularExponent="20" lighting-color="#ffffff" result="spec">
+        <fePointLight x="-50" y="-100" z="200"/>
+      </feSpecularLighting>
+      <feComposite in="spec" in2="SourceAlpha" operator="in" result="specOut"/>
+      <feComposite in="SourceGraphic" in2="specOut" operator="arithmetic" k1="0" k2="1" k3="1" k4="0"/>
+    </filter>
+     <linearGradient id="badgeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff4d4d;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#cc0000;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Body (Organic Shape) -->
+  <path d="M30 15 Q60 5 90 15 Q110 50 110 170 Q110 300 90 330 Q60 340 30 330 Q10 300 10 170 Q10 50 30 15 Z" fill="url(#glossBlack)" stroke="#222" filter="url(#shine)"/>
+
+  <!-- Power -->
+  <circle cx="30" cy="45" r="6" fill="#d00" class="btn-power" />
+  
+  <!-- Settings (Gear Icon) -->
+  <g transform="translate(90, 45)" class="btn-settings">
+    <circle cx="0" cy="0" r="6" fill="#333" stroke="#555"/>
+    <text x="0" y="2" fill="#ccc" font-size="8" text-anchor="middle">⚙</text>
+  </g>
+
+  <!-- Number Pad Stub -->
+  <g transform="translate(60, 90)">
+    <rect x="-30" y="0" width="60" height="40" fill="none" />
+    <circle cx="-20" cy="10" r="3" fill="#555"/> <circle cx="0" cy="10" r="3" fill="#555"/> <circle cx="20" cy="10" r="3" fill="#555"/>
+    <circle cx="-20" cy="25" r="3" fill="#555"/> <circle cx="0" cy="25" r="3" fill="#555"/> <circle cx="20" cy="25" r="3" fill="#555"/>
+  </g>
+
+  <!-- Navigation & Scroll Wheel -->
+  <g transform="translate(60, 180)">
+    <!-- Ring -->
+    <circle cx="0" cy="0" r="35" fill="#222" stroke="#444" />
+    
+    <!-- Arrows -->
+    <path d="M0 -25 L5 -15 H-5 Z" fill="#666" class="btn-up"/>
+    <path d="M0 25 L5 15 H-5 Z" fill="#666" class="btn-down"/>
+    <path d="M-25 0 L-15 5 V-5 Z" fill="#666" class="btn-left"/>
+    <path d="M25 0 L15 5 V-5 Z" fill="#666" class="btn-right"/>
+
+    <!-- Scroll Wheel (OK) -->
+    <rect x="-8" y="-12" width="16" height="24" rx="5" fill="#dd1144" class="btn-ok" stroke="#900">
+        <animate attributeName="fill" values="#dd1144;#aa0033;#dd1144" dur="4s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+
+  <!-- Home / Back Row -->
+  <g transform="translate(60, 240)">
+     <!-- Home -->
+     <g class="btn-home">
+        <path d="M-15 0 L0 -12 L15 0 V15 H8 V8 H-8 V15 H-15 Z" fill="#fff" stroke="#000" stroke-width="0.5" transform="scale(0.8) translate(0, -25)"/>
+     </g>
+     <!-- Back -->
+     <g class="btn-back" transform="translate(-30, 0)">
+        <text x="0" y="5" fill="#ccc" font-size="10" text-anchor="middle">↩</text>
+     </g>
+  </g>
+
+  <g id="badges_layer" pointer-events="none"></g>
+  <g id="arrows_layer" pointer-events="none"></g>
+
+  <style>
+    .step-badge circle { animation: popIn 0.4s forwards; fill: url(#badgeGrad); stroke: #fff; }
+    .step-badge text { fill: #fff; font-weight: bold; font-family: Arial; font-size: 8px; }
+    .flow-arrow { stroke: #ff4d4d; stroke-width: 2; fill: none; stroke-dasharray: 4; animation: dash 1s linear infinite; opacity: 0.6; }
+    @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes dash { to { stroke-dashoffset: -8; } }
+  </style>
+</svg>

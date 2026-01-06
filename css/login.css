@@ -1,0 +1,225 @@
+.login-modal {
+    display: flex;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background: var(--bg-primary);
+    justify-content: center;
+    align-items: center;
+}
+
+.login-content {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    width: 420px;
+    max-width: 95%;
+    text-align: center;
+    position: relative;
+    border: 1px solid var(--accent-primary);
+    backdrop-filter: blur(10px);
+}
+
+#loginLogo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 1.5rem auto;
+    height: auto;
+    width: fit-content;
+}
+
+#loginLogo svg,
+#loginLogo img {
+    max-width: 150px;
+    max-height: 50px;
+    width: auto;
+    height: auto;
+}
+
+.login-content h2 {
+    margin-bottom: 1rem;
+    font-size: 28px;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.login-content p {
+    margin-bottom: 1.5rem;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.login-content .form-group {
+    margin-bottom: 1.5rem;
+    text-align: left;
+    position: relative;
+}
+
+.password-container {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    /* Adjusted for better centering if label is not part of flow, but here label is above */
+    transform: translateY(15%);
+    /* Legacy was -50% but depended on parent container flow. Adjusting based on input height */
+    /* Re-evaluating legacy CSS: legacy had transform translateY(-50%) and top implied or inherited. 
+     Let's stick to legacy exactly for now, but note input has label above it. 
+     In legacy: .toggle-password { position: absolute; right: 15px; transform: translateY(-50%); } 
+     Wait, it needs a 'top' value to work with translateY(-50%) correctly relative to container. 
+     Legacy didn't specify top in the snippet I read? 
+     Let's look at legacy lines 90+. 
+     .toggle-password { postion: absolute; right: 15px; transform: translateY(-50%); ... }
+     It seems it relied on being inside .password-container. 
+     Let's add `top: 72%;` to roughly center it in the input area (label takes up top space). 
+     Or better, exact legacy behavior first. */
+    top: 42px;
+    /* Approximation: Label ~20px + margin. Input starts below. Center of input ~40-50px down. */
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--accent-primary);
+    padding: 5px;
+}
+
+.toggle-password:hover {
+    color: var(--accent-primary);
+}
+
+.login-content label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.login-content input[type="text"],
+.login-content input[type="password"],
+.login-content select {
+    width: 100%;
+    padding: 12px 45px 12px 15px;
+    border: 1px solid var(--accent-primary);
+    border-radius: 8px;
+    box-sizing: border-box;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 16px;
+}
+
+.login-content input[type="text"]::placeholder {
+    color: var(--text-secondary);
+}
+
+.login-content select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+}
+
+.login-content button {
+    width: 100%;
+    padding: 16px;
+    background: var(--accent-primary);
+    border: none;
+    border-radius: 8px;
+    color: var(--button-text-color);
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.login-content button:hover {
+    background: var(--accent-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+.login-subtitle,
+.login-footer {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.login-subtitle {
+    margin-bottom: 2rem;
+}
+
+.login-footer {
+    margin-top: 1.5rem;
+    font-size: 12px;
+}
+
+.login-message {
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    display: none;
+    text-align: left;
+    font-size: 14px;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-message.error {
+    display: flex;
+    align-items: center;
+    color: var(--text-primary);
+    background-color: rgba(239, 68, 68, 0.2);
+    border-color: var(--danger-color);
+}
+
+.login-message.error::before {
+    content: "error";
+    font-family: "Material Icons";
+    margin-right: 0.5rem;
+    font-size: 20px;
+}
+
+.datetime-display {
+    margin-top: 5px;
+    padding: 8px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    display: none;
+}
+
+.datetime-display.visible {
+    display: block;
+}
+
+.help-text {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-style: italic;
+}

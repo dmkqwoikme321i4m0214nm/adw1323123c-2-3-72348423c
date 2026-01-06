@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Acerca de | TypifyPro 4.0.0</title>
+    <!-- Early Theme Init -->
+    <!-- Early Theme Init -->
+    <script>
+        (function () {
+            // Retrieve theme, handling legacy keys
+            let theme = localStorage.getItem('selectedTheme') || 'tema_mundo';
+            if (theme === 'MUNDO') theme = 'tema_mundo';
+            if (theme === 'DARK') theme = 'dark_blue';
+
+            const bgColors = {
+                'tema_mundo': '#0b3f4b',
+                'dark_blue': '#152533',
+                'modern_black': '#0f172a'
+            };
+            const bgColor = bgColors[theme] || '#0b3f4b';
+
+            // 1. Set HTML background immediately (inline)
+            document.documentElement.style.backgroundColor = bgColor;
+
+            // 2. Inject Critical CSS for Body to prevent white flash
+            // This runs before external CSS loads
+            const style = document.createElement('style');
+            style.innerHTML = `html, body { background-color: ${bgColor}; }`;
+            document.head.appendChild(style);
+
+            // 3. Set Theme Attribute
+            if (theme !== 'tema_mundo') {
+                document.documentElement.setAttribute('data-theme', theme);
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+
+            // 4. Clean up transition blocker
+            window.addEventListener('DOMContentLoaded', () => {
+                // Small delay to ensure paint has stabilized
+                requestAnimationFrame(() => {
+                    document.body.classList.remove('preload');
+                });
+            });
+        })();
+    </script>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+
+<body class="preload">
+    <div class="dashboard-layout">
+        <nav class="sidebar glass-panel">
+            <div class="sidebar-header">
+                <img src="assets/logo.svg" alt="Logo" class="sidebar-logo">
+                <button class="sidebar-toggle" onclick="toggleSidebar()" title="Alternar menú lateral">
+                    <span class="material-icons">menu</span>
+                </button>
+            </div>
+            <script>
+                (function () {
+                    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true' || window.innerWidth <= 1024;
+                    if (isCollapsed) {
+                        const sidebar = document.currentScript.parentElement;
+                        sidebar.classList.add('collapsed');
+                        const icon = sidebar.querySelector('.sidebar-toggle .material-icons');
+                        if (icon) icon.textContent = 'chevron_right';
+                    }
+                })();
+            </script>
+            <ul class="nav-links">
+                <li>
+                    <a href="dashboard.html">
+                        <span class="material-icons">dashboard</span>
+                        <span class="nav-text">Generador</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="history.html">
+                        <span class="material-icons">history</span>
+                        <span class="nav-text">Historial</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="tools.html">
+                        <span class="material-icons">handyman</span>
+                        <span class="nav-text">Herramientas</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="settings.html">
+                        <span class="material-icons">settings</span>
+                        <span class="nav-text">Configuración</span>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="about.html">
+                        <span class="material-icons">info</span>
+                        <span class="nav-text">Acerca de</span>
+                    </a>
+                </li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <img src="assets/user.png" alt="User" class="user-avatar"
+                        style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
+                    <span id="userDisplay" class="nav-text">Usuario</span>
+                </div>
+                <button onclick="window.AuthModule.logout()" class="logout-btn-mini" title="Cerrar Sesión">
+                    <span class="material-icons">logout</span>
+                </button>
+            </div>
+        </nav>
+        <main class="main-content">
+            <header class="top-bar glass-panel">
+                <div class="top-left">
+                    <h2>Acerca de</h2>
+                </div>
+                <div class="top-right">
+                    <div class="tmo-timer" id="headerTmoTimer" onclick="window.location.href='tmo.html'"
+                        title="Ir al Gestor TMO">
+                        <span class="material-icons">timer</span>
+                        <span id="tmoCounter">00:00</span>
+                    </div>
+                    <button class="theme-toggle" onclick="window.UIModule.toggleTheme()">
+                        <span class="material-icons">dark_mode</span>
+                    </button>
+                </div>
+            </header>
+
+            <div
+                style="flex: 1; padding: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto;">
+
+                <div class="glass-panel"
+                    style="padding: 3rem; max-width: 900px; width: 100%; text-align: center; display: flex; flex-direction: column; align-items: center;">
+
+                    <!-- Main Logo -->
+                    <img src="assets/logo.svg" alt="TypifyPro Logo"
+                        style="width: 200px; height: auto; margin-bottom: 0.5rem;">
+
+                    <!-- Version & Developer -->
+                    <div style="margin-bottom: 1rem;">
+                        <span
+                            style="color: var(--text-secondary); font-size: 0.9rem; background: var(--bg-tertiary); padding: 2px 10px; border-radius: 12px; border: 1px solid var(--glass-border);">v4.0.0</span>
+                        <p style="color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.9rem;">
+                            Desarrollado por <strong style="color: var(--accent-primary);">Team Edward</strong>
+                        </p>
+                    </div>
+
+                    <!-- Partners Logos -->
+                    <div
+                        style="display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 1rem; opacity: 0.9;">
+                        <img src="assets/mundo.svg" alt="Mundo" style="height: 25px;">
+                        <span style="font-size: 1rem; color: var(--text-secondary); font-weight: bold;">✕</span>
+                        <img src="assets/konecta.svg" alt="Konecta" style="height: 25px;">
+                    </div>
+
+                    <!-- Changelog / Novedades (Text Box Style with Scroll) -->
+                    <div
+                        style="width: 100%; text-align: left; background: var(--bg-secondary); padding: 1rem; border-radius: 12px; border: 1px solid var(--glass-border); box-shadow: inner 0 2px 4px rgba(0,0,0,0.1); flex: 1; overflow: hidden; display: flex; flex-direction: column;">
+                        <h3
+                            style="color: var(--text-primary); margin-bottom: 0.5rem; font-size: 1rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
+                            <span class="material-icons"
+                                style="color: var(--accent-primary); font-size: 18px;">history_edu</span>
+                            Notas de la Versión
+                        </h3>
+
+                        <div style="overflow-y: auto; padding-right: 0.5rem; flex: 1;">
+                            <ul style="list-style: none; padding: 0; margin: 0;">
+                                <li
+                                    style="margin-bottom: 0.6rem; padding-left: 1rem; position: relative; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.4;">
+                                    <span
+                                        style="position: absolute; left: 0; top: 6px; width: 5px; height: 5px; background: var(--accent-primary); border-radius: 50%;"></span>
+                                    Se agregó Asistente HDMI AI para configuración de televisores.
+                                </li>
+                                <li
+                                    style="margin-bottom: 0.6rem; padding-left: 1rem; position: relative; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.4;">
+                                    <span
+                                        style="position: absolute; left: 0; top: 6px; width: 5px; height: 5px; background: var(--accent-primary); border-radius: 50%;"></span>
+                                    Corregidos errores de reconocimiento de marcas en asistente HDMI.
+                                </li>
+                                <li
+                                    style="margin-bottom: 0.6rem; padding-left: 1rem; position: relative; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.4;">
+                                    <span
+                                        style="position: absolute; left: 0; top: 6px; width: 5px; height: 5px; background: var(--accent-primary); border-radius: 50%;"></span>
+                                    Reestructurada interfaz para mejor consistencia visual.
+                                </li>
+                                <li
+                                    style="margin-bottom: 0.6rem; padding-left: 1rem; position: relative; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.4;">
+                                    <span
+                                        style="position: absolute; left: 0; top: 6px; width: 5px; height: 5px; background: var(--accent-primary); border-radius: 50%;"></span>
+                                    Mejorada interfaz con prevención de parpadeos blancos.
+                                </li>
+                                <li
+                                    style="margin-bottom: 0.6rem; padding-left: 1rem; position: relative; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.4;">
+                                    <span
+                                        style="position: absolute; left: 0; top: 6px; width: 5px; height: 5px; background: var(--accent-primary); border-radius: 50%;"></span>
+                                    Se añade un nuevo tema moderno (Tema Modelo).
+                                </li>
+                                <li
+                                    style="margin-bottom: 0.6rem; padding-left: 1rem; position: relative; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.4;">
+                                    <span
+                                        style="position: absolute; left: 0; top: 6px; width: 5px; height: 5px; background: var(--accent-primary); border-radius: 50%;"></span>
+                                    Se agregan funciones de plantillas predefinidas y sugerencias.
+                                </li>
+                                <li
+                                    style="margin-bottom: 0.6rem; padding-left: 1rem; position: relative; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.4;">
+                                    <span
+                                        style="position: absolute; left: 0; top: 6px; width: 5px; height: 5px; background: var(--accent-primary); border-radius: 50%;"></span>
+                                    Se agrega modo navideño (Próximamente).
+                                </li>
+                                <li
+                                    style="margin-bottom: 0.6rem; padding-left: 1rem; position: relative; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.4;">
+                                    <span
+                                        style="position: absolute; left: 0; top: 6px; width: 5px; height: 5px; background: var(--accent-primary); border-radius: 50%;"></span>
+                                    Se agrega exportación a XLS y TXT.
+                                </li>
+                                <li
+                                    style="margin-bottom: 0.6rem; padding-left: 1rem; position: relative; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.4;">
+                                    <span
+                                        style="position: absolute; left: 0; top: 6px; width: 5px; height: 5px; background: var(--accent-primary); border-radius: 50%;"></span>
+                                    Se agrega función de detalle de observaciones.
+                                </li>
+                                <li
+                                    style="margin-bottom: 0.6rem; padding-left: 1rem; position: relative; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.4;">
+                                    <span
+                                        style="position: absolute; left: 0; top: 6px; width: 5px; height: 5px; background: var(--accent-primary); border-radius: 50%;"></span>
+                                    Se agrega función de abrir ventanas al enviar un formulario (Persiste/Sondeo).
+                                </li>
+                                <li
+                                    style="margin-bottom: 0; padding-left: 1rem; position: relative; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.4;">
+                                    <span
+                                        style="position: absolute; left: 0; top: 6px; width: 5px; height: 5px; background: var(--accent-primary); border-radius: 50%;"></span>
+                                    Se agregan funciones de cliente persiste y actualización a Persiste v2.
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </main>
+    </div>
+    <script type="module" src="js/modules/auth.js"></script>
+    <script type="module" src="js/modules/ui.js"></script>
+    <script type="module" src="js/modules/chrono.js"></script>
+    <script type="module" src="js/modules/logger.js"></script>
+</body>
+
+</html>

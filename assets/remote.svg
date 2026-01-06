@@ -1,0 +1,170 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 380" class="remote-svg">
+  <defs>
+    <!-- Brushed Metal / Plastic Body Gradient -->
+    <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#111;stop-opacity:1" />
+      <stop offset="10%" style="stop-color:#2a2a2a;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#333;stop-opacity:1" />
+      <stop offset="90%" style="stop-color:#222;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#000;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Button Gradient (Rubber Matte) -->
+    <linearGradient id="btnGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#4a4a4a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#222;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Metallic Ring Gradient -->
+    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#888;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#ccc;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#555;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Drop Shadow -->
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="4"/>
+      <feOffset dx="4" dy="4" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.5"/>
+      </feComponentTransfer>
+      <feMerge> 
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/> 
+      </feMerge>
+    </filter>
+    
+    <!-- Bevel Filter for Buttons -->
+    <filter id="bevel">
+      <feGaussianBlur stdDeviation="1" in="SourceAlpha" result="blur"/>
+      <feSpecularLighting surfaceScale="2" specularConstant="1" specularExponent="15" lighting-color="#ffffff" in="blur" result="specular">
+        <fePointLight x="-5000" y="-10000" z="2000"/>
+      </feSpecularLighting>
+      <feComposite in="specular" in2="SourceAlpha" operator="in" result="specular"/>
+      <feComposite in="SourceGraphic" in2="specular" operator="arithmetic" k1="0" k2="1" k3="1" k4="0"/>
+    </filter>
+
+    <!-- Badge Gradient -->
+    <linearGradient id="badgeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff4d4d;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#cc0000;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Main Body -->
+  <rect x="10" y="10" width="120" height="360" rx="30" fill="url(#bodyGrad)" stroke="#000" stroke-width="2" filter="url(#shadow)"/>
+  
+  <!-- Texture Overlay (Simulated Noise/Grain could go here, staying simple for SVG perf) -->
+  
+  <!-- Header Area (Power & Mic) -->
+  <circle cx="35" cy="40" r="10" fill="#1a1a1a" stroke="#000" stroke-width="1"/>
+  <!-- Power Icon -->
+  <circle cx="35" cy="40" r="6" fill="#c00" class="btn-power" filter="url(#bevel)" style="cursor:pointer;"/>
+  <path d="M35 36 V40 M32 38 A4 4 0 1 0 38 38" stroke="#fff" stroke-width="1.5" fill="none" class="power-icon" style="pointer-events:none; opacity:0.8;"/>
+
+  <!-- Source/Input Button -->
+  <g class="btn-source" style="cursor:pointer;">
+    <rect x="85" y="32" width="24" height="16" rx="4" fill="url(#btnGrad)" stroke="#111" filter="url(#bevel)"/>
+    <text x="97" y="42" font-family="Arial" font-size="7" fill="#ddd" text-anchor="middle" dominant-baseline="middle" font-weight="bold" style="text-shadow: 0 1px 1px #000;">INPUT</text>
+  </g>
+
+  <!-- Number Pad Area -->
+  <g transform="translate(30, 70)">
+     <rect x="0" y="0" width="20" height="14" rx="3" fill="url(#btnGrad)" stroke="#111" filter="url(#bevel)"/> <text x="10" y="7" fill="#aaa" font-size="8" text-anchor="middle" dominant-baseline="middle">1</text>
+     <rect x="30" y="0" width="20" height="14" rx="3" fill="url(#btnGrad)" stroke="#111" filter="url(#bevel)"/> <text x="40" y="7" fill="#aaa" font-size="8" text-anchor="middle" dominant-baseline="middle">2</text>
+     <rect x="60" y="0" width="20" height="14" rx="3" fill="url(#btnGrad)" stroke="#111" filter="url(#bevel)"/> <text x="70" y="7" fill="#aaa" font-size="8" text-anchor="middle" dominant-baseline="middle">3</text>
+     
+     <rect x="0" y="20" width="20" height="14" rx="3" fill="url(#btnGrad)" stroke="#111" filter="url(#bevel)"/> <text x="10" y="27" fill="#aaa" font-size="8" text-anchor="middle" dominant-baseline="middle">4</text>
+     <rect x="30" y="20" width="20" height="14" rx="3" fill="url(#btnGrad)" stroke="#111" filter="url(#bevel)"/> <text x="40" y="27" fill="#aaa" font-size="8" text-anchor="middle" dominant-baseline="middle">5</text>
+     <rect x="60" y="20" width="20" height="14" rx="3" fill="url(#btnGrad)" stroke="#111" filter="url(#bevel)"/> <text x="70" y="27" fill="#aaa" font-size="8" text-anchor="middle" dominant-baseline="middle">6</text>
+  </g>
+
+  <!-- Navigation D-Pad -->
+  <g transform="translate(70, 190)">
+    <!-- Outer Ring -->
+    <circle cx="0" cy="0" r="46" fill="#222"/>
+    <circle cx="0" cy="0" r="45" fill="url(#bodyGrad)" stroke="url(#ringGrad)" stroke-width="3"/>
+    
+    <!-- Direction Buttons -->
+    <path d="M-15 -38 L15 -38 L8 -12 L-8 -12 Z" fill="url(#btnGrad)" stroke="#000" class="btn-up" style="cursor:pointer" filter="url(#bevel)"/>
+    <path d="M-15 38 L15 38 L8 12 L-8 12 Z" fill="url(#btnGrad)" stroke="#000" class="btn-down" style="cursor:pointer" filter="url(#bevel)"/>
+    <path d="M-38 -15 L-38 15 L-12 8 L-12 -8 Z" fill="url(#btnGrad)" stroke="#000" class="btn-left" style="cursor:pointer" filter="url(#bevel)"/>
+    <path d="M38 -15 L38 15 L12 8 L12 -8 Z" fill="url(#btnGrad)" stroke="#000" class="btn-right" style="cursor:pointer" filter="url(#bevel)"/>
+    
+    <!-- OK Button -->
+    <circle cx="0" cy="0" r="16" fill="url(#ringGrad)" stroke="#111" class="btn-ok" style="cursor:pointer" filter="url(#bevel)">
+      <title>OK/Enter</title>
+    </circle>
+    <text x="0" y="1" font-family="Arial" font-size="10" font-weight="bold" fill="#222" text-anchor="middle" dominant-baseline="middle" pointer-events="none" style="text-shadow:0 1px 0 rgba(255,255,255,0.4)">OK</text>
+  </g>
+
+  <!-- Tools Row (Home, Back, Settings) -->
+  <g transform="translate(20, 260)">
+      <!-- Back -->
+      <g class="btn-back" style="cursor:pointer">
+        <circle cx="15" cy="0" r="13" fill="url(#btnGrad)" stroke="#111" filter="url(#bevel)"/>
+        <path d="M12 4 L8 0 L12 -4 M8 0 L18 0" stroke="#ccc" stroke-width="2" fill="none" />
+        <text x="15" y="-18" font-family="Arial" font-size="7" fill="#888" text-anchor="middle">BACK</text>
+      </g>
+
+      <!-- Home -->
+      <g class="btn-home" style="cursor:pointer" transform="translate(35, 0)">
+        <circle cx="15" cy="0" r="15" fill="#3b82f6" stroke="#2563eb" filter="url(#bevel)" />
+        <path d="M 9 2 L 15 -5 L 21 2 V 8 H 18 V 4 H 12 V 8 H 9 Z" fill="#fff" />
+        <text x="15" y="-20" font-family="Arial" font-size="7" fill="#888" text-anchor="middle" font-weight="bold">HOME</text>
+      </g>
+
+      <!-- Settings / Menu -->
+      <g class="btn-settings" style="cursor:pointer" transform="translate(70, 0)">
+        <circle cx="15" cy="0" r="13" fill="url(#btnGrad)" stroke="#111" filter="url(#bevel)"/>
+        <text x="15" y="1" font-family="Arial" fontSize="14" fill="#ccc" text-anchor="middle" dominant-baseline="middle">⚙</text>
+         <text x="15" y="-18" font-family="Arial" font-size="7" fill="#888" text-anchor="middle">MENU</text>
+      </g>
+  </g>
+  
+  <!-- Volume & Channel -->
+  <g transform="translate(35, 310)">
+      <!-- Vol -->
+      <rect x="0" y="0" width="18" height="44" rx="9" fill="url(#btnGrad)" stroke="#111" filter="url(#bevel)"/>
+      <text x="9" y="10" font-family="Arial" font-size="10" fill="#999" text-anchor="middle">+</text>
+      <text x="9" y="36" font-family="Arial" font-size="10" fill="#999" text-anchor="middle">-</text>
+      <text x="9" y="23" font-family="Arial" font-size="6" fill="#666" text-anchor="middle">VOL</text>
+
+      <!-- CH -->
+      <rect x="52" y="0" width="18" height="44" rx="9" fill="url(#btnGrad)" stroke="#111" filter="url(#bevel)"/>
+      <text x="61" y="10" font-family="Arial" font-size="10" fill="#999" text-anchor="middle">^</text>
+      <text x="61" y="36" font-family="Arial" font-size="10" fill="#999" text-anchor="middle">v</text>
+      <text x="61" y="23" font-family="Arial" font-size="6" fill="#666" text-anchor="middle">CH</text>
+  </g>
+
+  <!-- Layer for Dynamic Badges -->
+  <g id="badges_layer" pointer-events="none"></g>
+  
+  <style>
+    /* Pulse for step 1, 2, 3... */
+    .step-badge circle {
+      animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      fill: url(#badgeGrad);
+      stroke: #fff;
+      stroke-width: 1.5px;
+    }
+    .step-badge text {
+      fill: #fff;
+      font-weight: bold;
+      font-family: Arial, sans-serif;
+      font-size: 10px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+    
+    @keyframes popIn {
+       from { transform: scale(0); opacity: 0; }
+       to { transform: scale(1); opacity: 1; }
+    }
+    
+    /* Highlight glow if used underneath */
+    .highlight {
+      filter: drop-shadow(0 0 8px #f00);
+    }
+  </style>
+</svg>

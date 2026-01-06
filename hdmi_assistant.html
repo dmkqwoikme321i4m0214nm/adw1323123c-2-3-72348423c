@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <script>
+        (function () {
+            let theme = localStorage.getItem('selectedTheme') || 'tema_mundo';
+            if (theme === 'MUNDO') theme = 'tema_mundo';
+            if (theme === 'DARK') theme = 'dark_blue';
+            if (theme === 'MODERN') theme = 'modern_black';
+
+            const bgColors = {
+                'tema_mundo': '#0b3f4b',
+                'dark_blue': '#152533',
+                'modern_black': '#0f172a'
+            };
+            const bgColor = bgColors[theme] || '#0b3f4b';
+
+            document.documentElement.style.backgroundColor = bgColor;
+            const style = document.createElement('style');
+            style.innerHTML = `html, body { background-color: ${bgColor}; }`;
+            document.head.appendChild(style);
+
+            if (theme !== 'tema_mundo') {
+                document.documentElement.setAttribute('data-theme', theme);
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+
+            window.addEventListener('DOMContentLoaded', () => {
+                requestAnimationFrame(() => {
+                    document.body.classList.remove('preload');
+                });
+            });
+        })();
+    </script>
+    <title>Asistente HDMI AI | TypifyPro 4.0.0</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            height: calc(100vh - 140px);
+            max-height: calc(100vh - 140px);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .chat-history {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            max-width: 80%;
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .message-row {
+            display: flex;
+            flex-direction: row;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        @media (max-width: 768px) {
+            .message-row {
+                flex-direction: column;
+            }
+        }
+
+        .message.user {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+
+        .message.bot {
+            align-self: flex-start;
+            align-items: flex-start;
+        }
+
+        .msg-bubble {
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            position: relative;
+        }
+
+        .message.user .msg-bubble {
+            background: var(--accent-primary);
+            color: white;
+            border-bottom-right-radius: 2px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .message.bot .msg-bubble {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border-bottom-left-radius: 2px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .bot .avatar {
+            background: linear-gradient(135deg, #8b5cf6, #6366f1);
+            color: white;
+        }
+
+        .user .avatar {
+            display: none;
+            /* User avatar optional */
+        }
+
+        .msg-sender {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            margin-left: 4px;
+        }
+
+        .chat-input-area {
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 12px 20px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+        }
+
+        .send-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+            background: var(--accent-hover);
+        }
+
+        .suggestions {
+            display: flex;
+            gap: 0.8rem;
+            overflow-x: auto;
+            padding: 0.75rem 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+            background: rgba(0, 0, 0, 0.15);
+            scrollbar-width: none;
+            flex-shrink: 0;
+        }
+
+        .suggestions::-webkit-scrollbar {
+            display: none;
+            /* Chrome/Safari */
+        }
+
+        .chip {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chip:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: var(--text-primary);
+            border-color: var(--accent-primary);
+        }
+
+        .chip img {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+            /* filter: brightness(0) invert(1); */
+            /* Ensure standard SVGs are visible */
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            width: fit-content;
+            margin-left: 1rem;
+            margin-bottom: 1rem;
+            animation: fadeIn 0.3s;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            background: var(--text-secondary);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+            opacity: 0.6;
+        }
+
+        .dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0);
+            }
+
+            40% {
+                transform: scale(1);
+            }
+        }
+
+        /* Step List Styling within Chat */
+        .chat-step-list {
+            margin: 0;
+            padding-left: 1.2rem;
+            margin-top: 0.5rem;
+        }
+
+        .chat-step-list li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* AI Title Container Styles */
+        .ai-title-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 24px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ai-title-container::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 12px;
+            padding: 2px;
+            background: linear-gradient(135deg, #a855f7, #ec4899, #8b5cf6, #a855f7);
+            background-size: 200% 200%;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: gradientShift 3s ease infinite;
+            pointer-events: none;
+        }
+
+        @keyframes gradientShift {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .ai-title-container h2 {
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: 0.5px;
+        }
+
+        .ai-icon {
+            font-size: 1.8rem;
+            filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.6));
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+        }
+    </style>
+</head>
+
+<body class="preload">
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <nav class="sidebar glass-panel">
+            <div class="sidebar-header">
+                <img src="assets/logo.svg" alt="Logo" class="sidebar-logo">
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <span class="material-icons">menu</span>
+                </button>
+            </div>
+            <script>
+                (function () {
+                    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true' || window.innerWidth <= 1024;
+                    if (isCollapsed) {
+                        const sidebar = document.currentScript.parentElement;
+                        sidebar.classList.add('collapsed');
+                        const icon = sidebar.querySelector('.sidebar-toggle .material-icons');
+                        if (icon) icon.textContent = 'chevron_right';
+                    }
+                })();
+            </script>
+
+            <!-- Sidebar content same as others -->
+            <ul class="nav-links">
+                <li><a href="dashboard.html"><span class="material-icons">dashboard</span><span
+                            class="nav-text">Generador</span></a></li>
+                <li><a href="history.html"><span class="material-icons">history</span><span
+                            class="nav-text">Historial</span></a></li>
+                <li class="active"><a href="tools.html"><span class="material-icons">handyman</span><span
+                            class="nav-text">Herramientas</span></a></li>
+                <li><a href="settings.html"><span class="material-icons">settings</span><span
+                            class="nav-text">Configuración</span></a></li>
+                <li><a href="about.html"><span class="material-icons">info</span><span class="nav-text">Acerca
+                            de</span></a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <img src="assets/user.png" alt="User" class="user-avatar"
+                        style="width: 36px; height: 36px; border-radius: 50%;">
+                    <span id="userDisplay" class="nav-text">Usuario</span>
+                </div>
+                <button onclick="window.AuthModule.logout()" class="logout-btn-mini"><span
+                        class="material-icons">logout</span></button>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <header class="top-bar glass-panel">
+                <div class="top-left">
+                    <button onclick="window.location.href='tools.html'" class="btn-icon-circle">
+                        <span class="material-icons">arrow_back</span>
+                    </button>
+                </div>
+                <div class="top-center">
+                    <div class="ai-title-container">
+                        <span class="ai-icon">🤖</span>
+                        <h2>Asistente HDMI AI</h2>
+                    </div>
+                </div>
+                <div class="top-right">
+                    <div class="tmo-timer" id="headerTmoTimer">
+                        <span class="material-icons">timer</span>
+                        <span id="tmoCounter">00:00</span>
+                    </div>
+                </div>
+            </header>
+
+            <div style="flex: 1; padding: 1.5rem; overflow: hidden;">
+                <!-- Chat Container -->
+                <div class="chat-container">
+
+                    <!-- Quick Suggestions Header -->
+                    <div class="suggestions" id="brandSuggestions">
+                        <!-- Chips injected by JS -->
+                    </div>
+
+                    <!-- Chat History -->
+                    <div class="chat-history" id="chatHistory">
+                        <!-- Messages go here -->
+                        <div class="message bot">
+                            <div class="avatar"><img src="assets/user.png" alt="AI"
+                                    style="width: 100%; height: 100%; object-fit: cover;"></div>
+                            <div class="msg-sender">AI Assistant</div>
+                            <div class="msg-bubble">
+                                ¡Hola! 👋 Soy el asistente que te ayudará a gestionar la configuración de HDMI con tu
+                                cliente.
+                                <br><br>
+                                <strong>¿Qué marca de TV tiene?</strong> (Ej: Samsung, Sony, LG...)
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Typing Indicator -->
+                    <div id="typingIndicator" class="typing-indicator" style="display: none;">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+
+                    <!-- Input Area -->
+                    <div class="chat-input-area" style="gap: 0.5rem;">
+                        <button class="btn-icon-circle" id="clearChatBtn" title="Limpiar Chat"
+                            style="width: 40px; height: 40px; background: rgba(239, 68, 68, 0.1); color: var(--danger-color); border: 1px solid rgba(239, 68, 68, 0.2);">
+                            <span class="material-icons" style="font-size: 20px;">delete</span>
+                        </button>
+                        <button class="btn-icon-circle" id="viewBrandsBtn" title="Ver Lista"
+                            style="width: 40px; height: 40px; background: rgba(139, 92, 246, 0.1); color: #8b5cf6; border: 1px solid rgba(139, 92, 246, 0.2);">
+                            <span class="material-icons" style="font-size: 20px;">list</span>
+                        </button>
+
+                        <input type="text" id="chatInput" class="chat-input"
+                            placeholder="Escribe 'Sony', 'Samsung', etc..." autocomplete="off">
+
+                        <button class="send-btn" id="sendBtn">
+                            <span class="material-icons">send</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="js/modules/auth.js"></script>
+    <script type="module" src="js/modules/ui.js"></script>
+    <script type="module" src="js/modules/hdmi_assistant.js"></script>
+    <script type="module" src="js/modules/chrono.js"></script>
+    <script>
+        // Sidebar Toggle Logic (Inline for simplicity or moved to UI module)
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('collapsed');
+            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+            const icon = sidebar.querySelector('.sidebar-toggle .material-icons');
+            icon.textContent = sidebar.classList.contains('collapsed') ? 'chevron_right' : 'menu';
+        }
+    </script>
+</body>
+
+</html>

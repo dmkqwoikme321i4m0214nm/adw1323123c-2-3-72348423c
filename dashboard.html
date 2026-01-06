@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Early Theme Init -->
+    <!-- Early Theme Init -->
+    <script>
+        (function () {
+            // Retrieve theme, handling legacy keys
+            let theme = localStorage.getItem('selectedTheme') || 'tema_mundo';
+            if (theme === 'MUNDO') theme = 'tema_mundo';
+            if (theme === 'DARK') theme = 'dark_blue';
+
+            const bgColors = {
+                'tema_mundo': '#0b3f4b',
+                'dark_blue': '#152533',
+                'modern_black': '#0f172a'
+            };
+            const bgColor = bgColors[theme] || '#0b3f4b';
+
+            // 1. Set HTML background immediately (inline)
+            document.documentElement.style.backgroundColor = bgColor;
+
+            // 2. Inject Critical CSS for Body to prevent white flash
+            // This runs before external CSS loads
+            const style = document.createElement('style');
+            style.innerHTML = `html, body { background-color: ${bgColor}; }`;
+            document.head.appendChild(style);
+
+            // 3. Set Theme Attribute
+            if (theme !== 'tema_mundo') {
+                document.documentElement.setAttribute('data-theme', theme);
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+
+            // 4. Clean up transition blocker
+            window.addEventListener('DOMContentLoaded', () => {
+                // Small delay to ensure paint has stabilized
+                requestAnimationFrame(() => {
+                    document.body.classList.remove('preload');
+                });
+            });
+        })();
+    </script>
+    <title>Dashboard | TypifyPro 4.0.0</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/styles.css">
+
+
+</head>
+
+<body class="preload">
+    <script type="module" src="js/modules/logger.js"></script>
+    <div class="dashboard-layout">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar glass-panel">
+            <div class="sidebar-header">
+                <img src="assets/logo.svg" alt="Logo" class="sidebar-logo">
+                <button class="sidebar-toggle" onclick="toggleSidebar()" title="Alternar menú lateral">
+                    <span class="material-icons">menu</span>
+                </button>
+            </div>
+            <script>
+                (function () {
+                    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true' || window.innerWidth <= 1024;
+                    if (isCollapsed) {
+                        const sidebar = document.currentScript.parentElement;
+                        sidebar.classList.add('collapsed');
+                        const icon = sidebar.querySelector('.sidebar-toggle .material-icons');
+                        if (icon) icon.textContent = 'chevron_right';
+                    }
+                })();
+            </script>
+
+            <ul class="nav-links">
+                <li class="active">
+                    <a href="dashboard.html">
+                        <span class="material-icons">dashboard</span>
+                        <span class="nav-text">Generador</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="history.html">
+                        <span class="material-icons">history</span>
+                        <span class="nav-text">Historial</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="tools.html">
+                        <span class="material-icons">handyman</span>
+                        <span class="nav-text">Herramientas</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="settings.html">
+                        <span class="material-icons">settings</span>
+                        <span class="nav-text">Configuración</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="about.html">
+                        <span class="material-icons">info</span>
+                        <span class="nav-text">Acerca de</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <img src="assets/user.png" alt="User" class="user-avatar"
+                        style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
+                    <span id="userDisplay" class="nav-text">Usuario</span>
+                </div>
+                <button onclick="window.AuthModule.openLogoutModal()" class="logout-btn-mini" title="Cerrar Sesión">
+                    <span class="material-icons">logout</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar glass-panel">
+                <div class="top-left">
+                    <h2>Generador de Tipificación</h2>
+                </div>
+                <div class="top-right">
+                    <div class="tmo-timer" id="headerTmoTimer" onclick="window.handleHeaderTimerClick()"
+                        title="Ir al Gestor TMO">
+                        <span class="material-icons">timer</span>
+                        <span id="tmoCounter">00:00</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Workspace -->
+            <div class="workspace-grid">
+                <!-- Data Entry Form -->
+                <div class="glass-panel form-panel">
+                    <div class="flex-header">
+                        <h3>Datos del Cliente</h3>
+                        <div class="form-group-inline">
+                            <label for="typificationType">Tipo de Gestión</label>
+                            <select id="typificationType" onchange="renderForm(this.value)" class="select-mini">
+                                <option value="Soporte" selected>Soporte Técnico</option>
+                                <option value="Transferencia">Transferencia</option>
+                            </select>
+                        </div>
+                    </div>
+                    <form id="typificationForm" class="grid-form">
+                        <!-- Dynamic Fields will be injected here by JS -->
+                        <div class="skeleton-loader"></div>
+                    </form>
+                </div>
+
+                <!-- Live Preview / Output -->
+                <div class="glass-panel output-panel">
+                    <h3>Vista Previa</h3>
+                    <div class="preview-box">
+                        <textarea id="outputPreview" readonly
+                            placeholder="La observación se generará aquí..."></textarea>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn-primary" onclick="generate()">
+                            <span class="material-icons">auto_fix_high</span> Generar
+                        </button>
+                        <button class="btn-secondary" onclick="copy()">
+                            <span class="material-icons">content_copy</span> Copiar
+                        </button>
+                        <button class="btn-danger" onclick="clearForm()">
+                            <span class="material-icons">delete_sweep</span> Limpiar
+                        </button>
+                    </div>
+                    <div id="surveyButtonsContainer" class="action-buttons survey-buttons" style="display: none;">
+                        <button class="btn-success" onclick="generateSurvey()" title="Generar Sondeo">
+                            <span class="material-icons">poll</span> Sondeo
+                        </button>
+                        <button class="btn-info" onclick="generateSurveyPersiste()" title="Generar Cliente Persiste">
+                            <span class="material-icons">support_agent</span> Persiste
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals (GenObs, etc) would go here -->
+
+    <!-- Modal Generar Observación -->
+    <div id="genobsModal" class="modal full-screen-modal">
+        <div class="modal-content full-screen-layout">
+            <!-- Sidebar -->
+            <div class="modal-sidebar">
+                <div class="sidebar-header">
+                    <button class="close-btn-sidebar top-back-btn" onclick="window.closeModal('genobsModal')">
+                        <i class="material-icons">arrow_back</i> Volver
+                    </button>
+                    <!-- Header text removed as per user request -->
+                </div>
+                <div class="vertical-tabs">
+                    <button class="tab-btn active" onclick="switchTab('genobs', 'questions')">
+                        <i class="material-icons">assignment</i> Preguntas
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('genobs', 'soporte')">
+                        <i class="material-icons">support_agent</i> Soporte
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="modal-main-area">
+                <div id="genobs-questions" class="tab-content active">
+                    <div class="content-header">
+                        <h2><i class="material-icons">assignment</i> Formulario de Observación</h2>
+                        <div class="header-actions">
+                            <button onclick="window.GenObsModule.clear()" class="btn-secondary small-btn"
+                                title="Limpiar Todo">
+                                <i class="material-icons">delete_sweep</i> Reiniciar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="scrollable-form modal-form-scroll">
+                        <form id="genobsForm">
+                            <!-- Dynamic Questions will be injected here by GenObs Module -->
+                        </form>
+                    </div>
+                    <div class="content-footer">
+                        <button class="btn-primary" onclick="switchTab('genobs', 'soporte')">
+                            Siguiente <i class="material-icons">arrow_forward</i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="genobs-soporte" class="tab-content">
+                    <div class="content-header">
+                        <h2><i class="material-icons">support_agent</i> Detalle del Soporte</h2>
+                        <div class="header-actions">
+                            <div class="support-actions-toolbar">
+                                <button type="button" onclick="window.limpiarCampoSoporte()"
+                                    class="btn-secondary small-btn" title="Borrar texto">
+                                    <i class="material-icons">backspace</i> Limpiar
+                                </button>
+                                <button type="button" onclick="window.analizarYSugerirPlantilla()"
+                                    class="btn-info small-btn" title="Sugerir Plantilla IA">
+                                    <i class="material-icons">auto_awesome</i> Sugerir IA
+                                </button>
+                                <button type="button"
+                                    onclick="window.guardarPlantillaRapida ? window.guardarPlantillaRapida() : alert('Función no disponible')"
+                                    class="btn-success small-btn" title="Guardar como Plantilla">
+                                    <i class="material-icons">save</i> Guardar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="templateInfoContainer" class="template-info-container" style="display: none;">
+                        <div class="info-header">
+                            <strong><i class="material-icons">info</i> Información de Plantilla</strong>
+                            <button onclick="window.limpiarCampoSoporte()"><i class="material-icons">close</i></button>
+                        </div>
+                        <div id="templateInfoContent"></div>
+                    </div>
+
+                    <div class="scrollable-form support-layout">
+                        <div class="form-group-modern">
+                            <label for="soporteGenerado">Descripción del Soporte Realizado:</label>
+                            <textarea id="soporteGenerado" placeholder="Escribe o genera la observación aquí..."
+                                class="full-height-textarea mono-font"></textarea>
+                            <div class="input-hint">
+                                <i class="material-icons">keyboard</i>
+                                Presiona <kbd>F2</kbd> para buscar plantillas rápidas
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="content-footer">
+                        <button class="btn-secondary" onclick="switchTab('genobs', 'questions')">
+                            <i class="material-icons">arrow_back</i> Atrás
+                        </button>
+                        <button onclick="window.GenObsModule.apply()" class="btn-primary big-btn">
+                            <i class="material-icons">check_circle</i> Insertar Observación
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Templates Modal -->
+    <div id="templatesModal" class="modal">
+        <div class="modal-content large-modal">
+            <span class="close-btn" onclick="closeModal('templatesModal')">&times;</span>
+            <h2>Plantillas de Tipificación</h2>
+
+            <div class="search-bar">
+                <input type="text" id="templateSearch" placeholder="Buscar plantillas (Nombre, Categoría, Tags)..."
+                    onkeyup="window.TemplatesModule.search(this.value)">
+            </div>
+
+            <div class="tags-cloud" id="templateCategories">
+                <!-- Categories injected here -->
+            </div>
+
+            <div class="templates-list" id="templatesList">
+                <!-- Templates injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Survey Modal -->
+    <div id="surveyModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('surveyModal')">&times;</span>
+            <h2>Sondeo Generado</h2>
+            <p>Selecciona una opción para el enlace de sondeo:</p>
+            <div class="modal-actions">
+                <button class="btn-primary" id="copySurveyLinkBtn">
+                    <span class="material-icons">content_copy</span> Copiar Enlace
+                </button>
+                <button class="btn-secondary" id="openSurveyLinkBtn">
+                    <span class="material-icons">open_in_new</span> Abrir Enlace
+                </button>
+                <button class="btn-primary" id="copyAutoSendSurveyLinkBtn">
+                    <span class="material-icons">send</span> Copiar Auto-Envío
+                </button>
+                <button class="btn-secondary" id="openAutoSendSurveyLinkBtn">
+                    <span class="material-icons">launch</span> Abrir Auto-Envío
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Survey Persiste Modal -->
+    <div id="surveyPersisteModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('surveyPersisteModal')">&times;</span>
+            <h2>Cliente Persiste Generado</h2>
+            <p>Selecciona una opción para el enlace de cliente persiste:</p>
+            <div class="modal-actions">
+                <button class="btn-primary" id="copySurveyPersisteLinkBtn">
+                    <span class="material-icons">content_copy</span> Copiar Enlace
+                </button>
+                <button class="btn-secondary" id="openSurveyPersisteLinkBtn">
+                    <span class="material-icons">open_in_new</span> Abrir Enlace
+                </button>
+                <button class="btn-primary" id="copyAutoSendSurveyPersisteLinkBtn">
+                    <span class="material-icons">send</span> Copiar Auto-Envío
+                </button>
+                <button class="btn-secondary" id="openAutoSendSurveyPersisteLinkBtn">
+                    <span class="material-icons">launch</span> Abrir Auto-Envío
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Shortcut Modal -->
+    <div id="shortcutModal" class="modal"
+        style="display: none; align-items: center; justify-content: center; z-index: 3000;">
+        <div class="glass-panel modal-content" style="width: 800px; max-width: 95%;" id="shortcutModalContainer">
+            <div class="modal-header">
+                <h3 id="modalTitle">Atajo</h3>
+                <button class="close-modal" onclick="window.ShortcutsModule.closeModal()"><span
+                        class="material-icons">close</span></button>
+            </div>
+            <div id="shortcutModalBody" class="modal-body">
+                <div class="flex-center" style="padding: 3rem; flex-direction: column; gap: 1rem;">
+                    <div class="loading-spinner"></div>
+                    <span>Cargando formulario...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <div style="margin-bottom: 1rem;">
+                <span class="material-icons" id="confirmIcon"
+                    style="font-size: 48px; color: var(--text-primary);">help</span>
+            </div>
+            <h2 id="confirmTitle" style="margin-bottom: 0.5rem;">Confirmación</h2>
+            <p id="confirmMessage" style="color: var(--text-secondary); margin-bottom: 1.5rem;">¿Estás seguro?</p>
+
+            <div class="modal-actions" style="justify-content: center; gap: 1rem;">
+                <button class="btn-secondary" onclick="window.closeModal('confirmModal')">
+                    Cancelar
+                </button>
+                <button id="confirmActionBtn" class="btn-primary">
+                    Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Observación Copiada (Parity with Legacy) -->
+    <div id="copySuccessModal" class="modal">
+        <div class="modal-content copy-success-content">
+            <button class="close-btn" onclick="window.closeModal('copySuccessModal')" title="Cerrar">
+                <i class="material-icons">close</i>
+            </button>
+            <div class="success-icon-container">
+                <i class="material-icons">check_circle</i>
+            </div>
+            <h2>¡Observación Copiada!</h2>
+            <p>La observación se ha copiado al portapapeles correctamente y está lista para ser pegada.</p>
+
+            <div class="important-warning-box">
+                <div class="warning-header">
+                    <i class="material-icons">warning</i>
+                    <span>IMPORTANTE</span>
+                </div>
+                <p>RECUERDA ADJUNTAR LA DOCUMENTACIÓN</p>
+            </div>
+
+            <button class="modal-confirm-btn" onclick="window.closeModal('copySuccessModal')">
+                Entendido
+            </button>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutModal" class="modal">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <div style="margin-bottom: 1rem;">
+                <span class="material-icons" style="font-size: 48px; color: var(--danger-color);">logout</span>
+            </div>
+            <h2 style="margin-bottom: 0.5rem;">Cerrar Sesión</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">¿Estás seguro que deseas salir del sistema?
+            </p>
+
+            <div class="modal-actions" style="justify-content: center; gap: 1rem;">
+                <button class="btn-secondary" onclick="window.AuthModule.closeLogoutModal()">
+                    Cancelar
+                </button>
+                <button class="btn-danger" onclick="window.AuthModule.confirmLogout()">
+                    Sí, Cerrar Sesión
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- External Libs -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+
+    <!-- Modules -->
+    <script type="module" src="js/modules/auth.js"></script>
+    <script type="module" src="js/modules/config.js"></script>
+    <script type="module" src="js/modules/ui.js"></script>
+    <script type="module" src="js/modules/chrono.js"></script>
+    <script type="module" src="js/modules/shortcuts.js"></script>
+    <script type="module" src="js/modules/history.js"></script>
+    <script type="module" src="js/modules/genobs.js"></script>
+    <script type="module" src="js/modules/templates.js"></script>
+    <script type="module" src="js/modules/survey.js"></script>
+    <script type="module" src="js/modules/surveyPersiste.js"></script>
+    <script type="module" src="js/modules/generator.js"></script>
+    <script type="module" src="js/modules/logger.js"></script>
+    <script type="module" src="js/modules/tmo.js"></script>
+    <script type="module" src="js/modules/templateSearch.js"></script>
+    <script type="module" src="js/modules/templateSuggestion.js"></script>
+    <script type="module" src="js/modules/settings.js"></script>
+</body>
+
+</html>

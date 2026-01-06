@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 320" class="remote-svg">
+  <defs>
+    <linearGradient id="silverGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ccc;stop-opacity:1" />
+      <stop offset="20%" style="stop-color:#eee;stop-opacity:1" />
+      <stop offset="80%" style="stop-color:#eee;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#aaa;stop-opacity:1" />
+    </linearGradient>
+    <filter id="dropshadow" height="130%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dx="2" dy="2" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.3"/>
+      </feComponentTransfer>
+      <feMerge> 
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/> 
+      </feMerge>
+    </filter>
+     <linearGradient id="badgeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff4d4d;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#cc0000;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Body (Slightly Curved) -->
+  <path d="M20 10 Q50 5 80 10 L85 300 Q50 315 15 300 Z" fill="url(#silverGrad)" stroke="#999" stroke-width="1" filter="url(#dropshadow)"/>
+
+  <!-- Power -->
+  <circle cx="25" cy="40" r="5" fill="#333" class="btn-power" />
+  <path d="M25 38 V40 M23 39 A2 2 0 1 0 27 39" stroke="#f00" stroke-width="1" fill="none" />
+
+  <!-- Nav Ring (Silver/Black Mix) -->
+  <g transform="translate(50, 100)">
+    <circle cx="0" cy="0" r="30" fill="#222" stroke="#444" stroke-width="1"/>
+    <circle cx="0" cy="0" r="10" fill="#111" class="btn-ok" /> <!-- OK Center -->
+    
+    <!-- Virtual Hotspots for JS selection -->
+    <path d="M-10 -30 L10 -30 L5 -10 L-5 -10 Z" fill="transparent" class="btn-up" />
+    <path d="M-10 30 L10 30 L5 10 L-5 10 Z" fill="transparent" class="btn-down" />
+  </g>
+
+  <!-- Home / Back / Play Row -->
+  <g transform="translate(50, 160)">
+    <!-- Back -->
+    <circle cx="-25" cy="0" r="8" fill="#222" class="btn-back" />
+    <path d="M-27 2 L-30 -2 L-24 2 M-30 -2 L-20 -2" stroke="#fff" stroke-width="1.5" fill="none"/>
+
+    <!-- Home -->
+    <circle cx="0" cy="0" r="8" fill="#222" class="btn-home" />
+    <path d="M-3 -1 L0 -4 L3 -1 V3 H1 V0 H-1 V3 H-3 Z" fill="none" stroke="#fff" stroke-width="1.5"/>
+
+    <!-- Play/Pause -->
+    <circle cx="25" cy="0" r="8" fill="#222" class="btn-play" />
+    <text x="25" y="3" fill="#fff" font-size="6" text-anchor="middle">►||</text>
+  </g>
+
+  <!-- Vol / CH Rockers -->
+  <g transform="translate(50, 210)">
+     <rect x="-25" y="0" width="10" height="30" rx="4" fill="#222"/>
+     <rect x="15" y="0" width="10" height="30" rx="4" fill="#222"/>
+     <text x="-20" y="40" font-size="6" fill="#666" text-anchor="middle">VOL</text>
+     <text x="20" y="40" font-size="6" fill="#666" text-anchor="middle">CH</text>
+  </g>
+  
+  <!-- Settings (Often accessed via Home or explicit button on newer ones) 
+       We add a small discrete settings button for clarity -->
+  <g transform="translate(75, 40)">
+     <circle cx="0" cy="0" r="5" fill="#222" class="btn-settings"/>
+     <text x="0" y="2" fill="#fff" font-size="6" text-anchor="middle">⚙</text>
+  </g>
+
+  <g id="badges_layer" pointer-events="none"></g>
+  <g id="arrows_layer" pointer-events="none"></g>
+  
+   <style>
+    .step-badge circle { animation: popIn 0.4s forwards; fill: url(#badgeGrad); stroke: #fff; }
+    .step-badge text { fill: #fff; font-weight: bold; font-family: Arial; font-size: 8px; }
+    .flow-arrow { stroke: #ff4d4d; stroke-width: 2; fill: none; stroke-dasharray: 4; animation: dash 1s linear infinite; opacity: 0.6; }
+    @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes dash { to { stroke-dashoffset: -8; } }
+  </style>
+</svg>
