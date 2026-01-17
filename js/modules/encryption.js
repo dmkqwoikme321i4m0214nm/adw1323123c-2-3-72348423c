@@ -1,5 +1,5 @@
 /**
- * TypifyPro 4.0.0 - Credential Encryption Module
+ * TypifyPro 4.0.1 - Credential Encryption Module
  * Handles AES-256 encryption/decryption of credentials
  */
 

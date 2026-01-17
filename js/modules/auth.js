@@ -1,5 +1,5 @@
 /**
- * TypifyPro 4.0.0 - Authentication Module
+ * TypifyPro 4.0.1 - Authentication Module
  * Handles Login, Logout, and Session Verification
  */
 

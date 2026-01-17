@@ -163,10 +163,10 @@ function initUI() {
     // Initialize Sidebar
     initSidebar();
 
-    // Set User Name
+    // Set User Document Number (Cédula)
     const userDisplay = document.getElementById('userDisplay');
     if (userDisplay && window.AuthModule) {
-        userDisplay.textContent = window.AuthModule.getUser() || 'Usuario';
+        userDisplay.textContent = window.AuthModule.getDocumentNumber() || 'Usuario';
     }
 }
 

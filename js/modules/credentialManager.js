@@ -1,5 +1,5 @@
 /**
- * TypifyPro 4.0.0 - Secure Credential Manager
+ * TypifyPro 4.0.1 - Secure Credential Manager
  * AES-256 Encryption - Silent Operation (No Logs)
  */
 

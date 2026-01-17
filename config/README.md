@@ -1,4 +1,4 @@
-# TypifyPro 4.0.0 - Credentials Configuration
+# TypifyPro 4.0.1 - Credentials Configuration
 
 ## Overview
 

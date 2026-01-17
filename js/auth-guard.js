@@ -1,5 +1,5 @@
 /**
- * TypifyPro 4.0.0 - Authentication Guard
+ * TypifyPro 4.0.1 - Authentication Guard
  * CRITICAL: This script MUST be loaded FIRST on all protected pages
  * Blocks page rendering until authentication is verified
  */
